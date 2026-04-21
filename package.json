@@ -1,0 +1,14 @@
+{
+  "name": "role4-map-seasonal",
+  "version": "1.0.0",
+  "type": "module",
+  "scripts": {
+    "start": "node app.js",
+    "seed": "node seed.js"
+  },
+  "dependencies": {
+    "express": "^4.18.2",
+    "express-handlebars": "^7.1.2",
+    "mongodb": "^6.3.0"
+  }
+}

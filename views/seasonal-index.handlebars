@@ -1,0 +1,37 @@
+{{!-- views/seasonal-index.handlebars — Seasonal Tracker landing --}}
+
+<div class="seasonal-hero">
+  <p class="hero-eyebrow">NYC Cultural Guide</p>
+  <h1>Find Foods for<br>NYC's Cultural Holidays</h1>
+  <p>Discover minority-owned businesses carrying traditional foods for upcoming cultural celebrations across all five boroughs.</p>
+</div>
+
+{{#if holidayTags.length}}
+  <div class="section-label"><h2>Choose a Holiday</h2></div>
+
+  <div class="holiday-grid">
+    {{#each holidayTags}}
+      <a href="/seasonal/{{this.name}}" class="holiday-card" aria-label="Browse {{this.name}} foods">
+        {{#if this.photo}}
+          <img
+            src="{{this.photo}}"
+            alt="{{this.name}}"
+            class="holiday-card-img"
+            loading="lazy"
+            onerror="this.style.display='none'; this.parentElement.classList.add('{{this.grad}}')"
+          >
+        {{else}}
+          {{!-- CSS gradient fallback when no photo --}}
+        {{/if}}
+        <div class="holiday-card-overlay {{#unless this.photo}}{{this.grad}}{{/unless}}">
+          <p class="holiday-card-sub">{{this.subtitle}}</p>
+          <h2 class="holiday-card-title">{{this.name}}</h2>
+        </div>
+      </a>
+    {{/each}}
+  </div>
+{{else}}
+  <div style="text-align:center; padding:4rem 2rem; color:#7A726C;">
+    <p>No holiday tags have been added yet.</p>
+  </div>
+{{/if}}

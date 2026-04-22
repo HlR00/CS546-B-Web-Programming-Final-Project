@@ -1,0 +1,75 @@
+{{!-- views/seasonal.handlebars — Seasonal Tracker results --}}
+
+<div class="seasonal-page">
+  <div class="seasonal-page-header">
+    <div class="seasonal-page-header-inner">
+      <span class="seasonal-tag-pill">{{holidayTag}}</span>
+      <h1>{{subtitle}}</h1>
+      <nav class="page-links" aria-label="Page navigation">
+        <a href="/seasonal">&#8592; All holidays</a>
+        <a href="/map?holidayTag={{holidayTag}}">View on map &#8599;</a>
+      </nav>
+    </div>
+  </div>
+
+  {{#if hasResults}}
+    <ul class="seasonal-grid" aria-label="Businesses carrying {{holidayTag}} items">
+      {{#each businesses}}
+        <li class="biz-card">
+          {{#if this.photoUrl}}
+            <img
+              src="{{this.photoUrl}}"
+              alt="{{this.name}}"
+              class="biz-card-img"
+              loading="lazy"
+              onerror="this.style.display='none'; this.nextElementSibling.style.display='flex'"
+            >
+            <div class="biz-card-img-fallback c-default" style="display:none" aria-hidden="true">🍽</div>
+          {{else}}
+            <div class="biz-card-img-fallback c-default" aria-hidden="true">🍽</div>
+          {{/if}}
+
+          <div class="biz-card-body">
+            <p class="biz-card-hood">{{this.neighborhood}}</p>
+            <h2 class="biz-card-name">{{this.name}}</h2>
+
+            <ul class="product-chips" aria-label="Available items">
+              {{#each this.products}}
+                <li>
+                  {{#if this.inStock}}
+                    <span class="chip chip-stock">
+                      <span class="chip-dot" aria-hidden="true"></span>
+                      {{this.itemName}}
+                    </span>
+                  {{else}}
+                    <span class="chip chip-out">
+                      <span class="chip-dot" aria-hidden="true"></span>
+                      {{this.itemName}}
+                    </span>
+                  {{/if}}
+                </li>
+              {{/each}}
+            </ul>
+          </div>
+
+          <div class="biz-card-footer">
+            <a href="/businesses/{{this._id}}" class="biz-card-link">
+              View details &#8599;
+            </a>
+            {{#with (lookup this.products 0)}}
+              {{#if this.lastReported}}
+                <span class="biz-card-reported">Updated {{this.lastReported}}</span>
+              {{/if}}
+            {{/with}}
+          </div>
+        </li>
+      {{/each}}
+    </ul>
+  {{else}}
+    <div class="no-results">
+      <h2>No results found</h2>
+      <p>No businesses are currently selling items tagged &ldquo;{{holidayTag}}&rdquo;.</p>
+      <a href="/seasonal" class="btn btn-primary">Try another holiday</a>
+    </div>
+  {{/if}}
+</div>

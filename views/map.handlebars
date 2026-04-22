@@ -1,0 +1,64 @@
+{{!-- views/map.handlebars — Interactive Neighborhood Map --}}
+
+<div class="map-page">
+  <div class="map-page-header">
+    <h1>Explore NYC Cultural Businesses</h1>
+
+    <form id="map-filters" action="/map" method="GET" class="map-filters">
+      <div class="filter-group">
+        <label for="neighborhood-input">Neighborhood</label>
+        <input
+          type="text"
+          id="neighborhood-input"
+          name="neighborhood"
+          placeholder="e.g. Flushing, Jackson Heights"
+          autocomplete="off"
+        >
+      </div>
+
+      <div class="filter-group">
+        <label for="holiday-select">Festival</label>
+        <select id="holiday-select" name="holidayTag">
+          <option value="">All businesses</option>
+          {{#each holidayTags}}
+            <option value="{{this}}">{{this}}</option>
+          {{/each}}
+        </select>
+      </div>
+
+      <div class="filter-actions">
+        <button type="submit" class="btn btn-primary">Filter</button>
+        <a href="/map" class="btn btn-ghost">Reset</a>
+      </div>
+    </form>
+  </div>
+
+  <div class="map-container">
+    <div id="map-error" role="status" hidden></div>
+    <div
+      id="map"
+      role="application"
+      aria-label="Interactive map of NYC cultural businesses. A text list of the same businesses is provided below."
+      tabindex="0"
+    ></div>
+  </div>
+
+  <section class="list-view" aria-labelledby="list-heading">
+    <h2 id="list-heading">List view</h2>
+    <p class="visually-hidden">The following list contains the same businesses shown on the map.</p>
+    <ul id="business-list" aria-busy="true"></ul>
+  </section>
+</div>
+
+<link
+  rel="stylesheet"
+  href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+  integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY="
+  crossorigin=""
+>
+<script
+  src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
+  integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo="
+  crossorigin=""
+></script>
+<script src="/public/js/map.js" defer></script>

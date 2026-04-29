@@ -1,7 +1,79 @@
-import {Router} from 'express'; import {registerUser,loginUser} from '../data/users.js'; const r=Router();
-r.get('/register',(q,s)=>s.render('auth/register'));
-r.post('/register',async(q,s)=>{try{await registerUser(q.body.firstName,q.body.lastName,q.body.email,q.body.password);s.redirect('/login');}catch(e){s.render('auth/register',{error:e});}});
-r.get('/login',(q,s)=>s.render('auth/login'));
-r.post('/login',async(q,s)=>{try{const u=await loginUser(q.body.email,q.body.password);q.session.user={_id:u._id.toString(),firstName:u.firstName,role:u.role};s.redirect('/dashboard');}catch(e){s.render('auth/login',{error:e});}});
-r.get('/logout',(q,s)=>q.session.destroy(()=>s.redirect('/login')));
-export default r;
+import express from "express";
+import {
+  registerUser,
+  loginUser
+} from "../data/users.js";
+
+const router = express.Router();
+
+
+
+router.get("/login", (req, res) => {
+  res.render("auth/login");
+});
+
+
+
+router.get("/register", (req, res) => {
+  res.render("auth/register");
+});
+
+
+
+router.post("/register", async (req, res) => {
+  try {
+    await registerUser(
+      req.body.firstName,
+      req.body.lastName,
+      req.body.email,
+      req.body.password
+    );
+
+    res.redirect("/login");
+
+  } catch (e) {
+    res.render("auth/register", {
+      error: e
+    });
+  }
+});
+
+
+
+router.post("/login", async (req, res) => {
+    try {
+      const user = await loginUser(
+        req.body.email,
+        req.body.password
+      );
+  
+      req.session.user = {
+        _id: user._id,
+        firstName: user.firstName,
+        lastName: user.lastName,
+        email: user.email,
+        role: user.role,
+        followedCultures:
+          user.followedCultures || []
+      };
+  
+      res.redirect("/dashboard");
+  
+    } catch (e) {
+      res.render("auth/login", {
+        error: "Invalid Login"
+      });
+    }
+  });
+
+
+
+router.get("/logout", (req, res) => {
+  req.session.destroy(() => {
+    res.redirect("/login");
+  });
+});
+
+
+
+export default router;

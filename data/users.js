@@ -1,5 +1,5 @@
+import crypto from "crypto";
 import bcrypt from "bcrypt";
-import { ObjectId } from "mongodb";
 import { users } from "../config/mongoCollections.js";
 
 const saltRounds = 10;
@@ -14,10 +14,14 @@ export const registerUser = async (
 ) => {
   const collection = await users();
 
-  email = email.toLowerCase();
+  firstName = firstName.trim();
+  lastName = lastName.trim();
+  email = email.toLowerCase().trim();
 
   const existing =
-    await collection.findOne({ email });
+    await collection.findOne({
+      email
+    });
 
   if (existing)
     throw "User already exists";
@@ -33,15 +37,19 @@ export const registerUser = async (
       ? "admin"
       : "user";
 
-  await collection.insertOne({
-    firstName,
+  const newUser = {
+    _id: crypto.randomUUID(),    firstName,
     lastName,
     email,
     hashedPassword,
     role,
     followedCultures: [],
     mustBuyList: []
-  });
+  };
+
+  await collection.insertOne(newUser);
+
+  return newUser;
 };
 
 
@@ -52,10 +60,12 @@ export const loginUser = async (
 ) => {
   const collection = await users();
 
-  email = email.toLowerCase();
+  email = email.toLowerCase().trim();
 
   const user =
-    await collection.findOne({ email });
+    await collection.findOne({
+      email
+    });
 
   if (!user)
     throw "Invalid Login";
@@ -95,9 +105,15 @@ export const loginUser = async (
 export const getUser = async (id) => {
   const collection = await users();
 
-  return await collection.findOne({
-    _id: new ObjectId(id)
-  });
+  const user =
+    await collection.findOne({
+      _id: id
+    });
+
+  if (!user)
+    throw "User not found";
+
+  return user;
 };
 
 
@@ -108,14 +124,18 @@ export const addCulture = async (
 ) => {
   const collection = await users();
 
+  culture = culture.trim();
+
   await collection.updateOne(
-    { _id: new ObjectId(id) },
+    { _id: id },
     {
       $addToSet: {
         followedCultures: culture
       }
     }
   );
+
+  return true;
 };
 
 
@@ -126,14 +146,18 @@ export const removeCulture = async (
 ) => {
   const collection = await users();
 
+  culture = culture.trim();
+
   await collection.updateOne(
-    { _id: new ObjectId(id) },
+    { _id: id },
     {
       $pull: {
         followedCultures: culture
       }
     }
   );
+
+  return true;
 };
 
 
@@ -144,14 +168,18 @@ export const addMustBuy = async (
 ) => {
   const collection = await users();
 
+  item = item.trim();
+
   await collection.updateOne(
-    { _id: new ObjectId(id) },
+    { _id: id },
     {
       $addToSet: {
         mustBuyList: item
       }
     }
   );
+
+  return true;
 };
 
 
@@ -162,12 +190,16 @@ export const removeMustBuy = async (
 ) => {
   const collection = await users();
 
+  item = item.trim();
+
   await collection.updateOne(
-    { _id: new ObjectId(id) },
+    { _id: id },
     {
       $pull: {
         mustBuyList: item
       }
     }
   );
+
+  return true;
 };

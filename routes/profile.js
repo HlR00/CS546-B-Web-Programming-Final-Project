@@ -1,5 +1,4 @@
 import express from "express";
-
 import {
   getUser,
   addCulture,
@@ -11,26 +10,30 @@ import {
 const router = express.Router();
 
 router.get("/dashboard", async (req, res) => {
+  try {
+    if (!req.session.user)
+      return res.redirect("/login");
 
-  if (!req.session.user)
-    return res.redirect("/login");
+    const user = await getUser(
+      req.session.user._id
+    );
 
+    req.session.user.role =
+      user.role;
 
+    req.session.user.followedCultures =
+      user.followedCultures || [];
 
-  const user = await getUser(
-    req.session.user._id
-  );
+    res.render(
+      "profile/dashboard",
+      { user }
+    );
 
-
-
-  req.session.user.role = user.role;
-
-
-
-  res.render(
-    "profile/dashboard",
-    { user }
-  );
+  } catch (e) {
+    req.session.destroy(() => {
+      res.redirect("/login");
+    });
+  }
 });
 
 router.post("/culture/add", async (req,res)=>{

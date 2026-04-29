@@ -1,0 +1,1 @@
+import {Router} from 'express'; import {requireAuth} from '../middleware/auth.js'; import {getUserById} from '../data/users.js'; const r=Router(); r.get('/dashboard',requireAuth,async(q,s)=>{const user=await getUserById(q.session.user._id); s.render('profile/dashboard',{user});}); export default r;

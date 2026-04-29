@@ -1,15 +1,16 @@
 
 import express   from 'express';
 import exphbs    from 'express-handlebars';
+import session   from 'express-session';
 import { fileURLToPath } from 'url';
 import path      from 'path';
-import session from 'express-session';
 
-import mapRoutes      from './routes/map.js';
-import seasonalRoutes from './routes/seasonal.js';
-import authRoutes from './routes/auth.js';
-import profileRoutes from './routes/profile.js';
-import adminRoutes from './routes/admin.js';
+import mapRoutes        from './routes/map.js';
+import seasonalRoutes   from './routes/seasonal.js';
+import businessRoutes   from './routes/businesses.js';
+import authRoutes       from './routes/auth.js';
+import profileRoutes    from './routes/profile.js';
+import adminRoutes      from './routes/admin.js';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const app = express();
@@ -21,10 +22,11 @@ app.set('views', path.join(__dirname, 'views'));
 app.use('/public', express.static(path.join(__dirname, 'public')));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
-app.use(session({secret:'secret',resave:false,saveUninitialized:false}));
+app.use(session({ secret: 'secret', resave: false, saveUninitialized: false }));
 
 app.use('/', mapRoutes);
 app.use('/', seasonalRoutes);
+app.use('/', businessRoutes);
 app.use('/', authRoutes);
 app.use('/', profileRoutes);
 app.use('/', adminRoutes);

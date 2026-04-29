@@ -1,6 +1,56 @@
 # Role 4 — Maps & Seasonal Tracker
 **Owner:** Ching-Yen Lee (Candice)  
-**Last updated:** 2026-04-21
+**Last updated:** 2026-04-29
+
+---
+
+## Teammate Backend (ichanner) — What was built
+
+**Repo:** https://github.com/ichanner/backend  
+**Port:** 4000 (Role 4 runs on 3000)
+
+This is a pure REST API — no HTML pages, just JSON endpoints. Role 4's server-rendered Handlebars app reads from the same MongoDB database that this backend writes to.
+
+### What it covers
+
+| Area | Endpoints |
+|------|-----------|
+| Auth | `POST /api/auth/register`, `POST /api/auth/login` |
+| Users | `GET/PATCH /api/users/:id` |
+| Businesses | Full CRUD on `/api/businesses` |
+| Products | Nested under `/api/businesses/:id/products` |
+| Reviews | Nested under `/api/businesses/:id/reviews` |
+| Questions & Answers | Nested under `/api/businesses/:id/questions` |
+
+### Database schema (Mongoose — matches the group proposal exactly)
+
+```
+Business
+  ├── name, category, dataSource, neighborhood, address
+  ├── location  { type: "Point", coordinates: [lng, lat] }
+  ├── healthGrade, isVerified
+  ├── products[]
+  │     ├── _id (UUID string), name, description, culture
+  │     └── stockReports[]  { userId, inStock, reportedAt }
+  ├── reviews[]   { _id, userId, rating, comment, createdAt }
+  └── questions[] { _id, userId, questionText, createdAt,
+                    answers: [{ _id, userId, answerText, createdAt }] }
+
+User
+  └── firstName, lastName, email, hashedPassword, role,
+      followedCultures[], mustBuyList[]
+```
+
+### Key fields Role 4 must use (not the old names)
+
+| Role 4 used to write | Correct field (per proposal & teammate) |
+|----------------------|------------------------------------------|
+| `products.holidayTag` | `products.culture` |
+| `products.itemName` | `products.name` |
+| `products.inStock` (boolean) | derive from `products.stockReports` array |
+| `cuisine` (root) | `category` |
+
+---
 
 ---
 

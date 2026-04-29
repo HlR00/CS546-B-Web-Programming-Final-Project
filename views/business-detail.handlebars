@@ -1,0 +1,91 @@
+{{!-- views/business-detail.handlebars --}}
+
+<div class="biz-detail-page">
+
+  <div class="seasonal-page-header">
+    <div class="seasonal-page-header-inner">
+      <span class="seasonal-tag-pill">{{business.category}}</span>
+      <h1>{{business.name}}</h1>
+      <nav class="page-links" aria-label="Page navigation">
+        <a href="/seasonal">&#8592; Seasonal Tracker</a>
+        <a href="/map">View on map &#8599;</a>
+      </nav>
+    </div>
+  </div>
+
+  <div class="biz-detail-body">
+
+    {{!-- Info bar --}}
+    <div class="biz-detail-meta">
+      <span>&#128205; {{business.neighborhood}}</span>
+      {{#if business.address}}<span>{{business.address}}</span>{{/if}}
+      {{#if business.healthGrade}}<span>Health Grade: <strong>{{business.healthGrade}}</strong></span>{{/if}}
+    </div>
+
+    {{!-- Products --}}
+    {{#if business.products.length}}
+      <section class="biz-detail-section" aria-labelledby="products-heading">
+        <h2 id="products-heading">Seasonal Products</h2>
+        <ul class="product-chips" style="margin-top:.75rem">
+          {{#each business.products}}
+            <li>
+              {{#if this.inStock}}
+                <span class="chip chip-stock">
+                  <span class="chip-dot" aria-hidden="true"></span>
+                  {{this.name}}
+                  <em style="font-weight:400;font-style:normal;opacity:.7">&nbsp;· {{this.culture}}</em>
+                </span>
+              {{else}}
+                <span class="chip chip-out">
+                  <span class="chip-dot" aria-hidden="true"></span>
+                  {{this.name}}
+                  <em style="font-weight:400;font-style:normal;opacity:.7">&nbsp;· {{this.culture}}</em>
+                </span>
+              {{/if}}
+            </li>
+          {{/each}}
+        </ul>
+      </section>
+    {{/if}}
+
+    {{!-- Reviews --}}
+    <section class="biz-detail-section" aria-labelledby="reviews-heading">
+      <h2 id="reviews-heading">Reviews</h2>
+      {{#if business.reviews.length}}
+        <ul class="review-list">
+          {{#each business.reviews}}
+            <li class="review-card">
+              <div class="review-rating" aria-label="Rating: {{this.rating}} out of 5">
+                {{#each (times this.rating)}}<span aria-hidden="true">&#9733;</span>{{/each}}
+              </div>
+              <p class="review-comment">{{this.comment}}</p>
+              <p class="review-date">{{this.createdAt}}</p>
+            </li>
+          {{/each}}
+        </ul>
+      {{else}}
+        <p class="biz-detail-empty">No reviews yet.</p>
+      {{/if}}
+    </section>
+
+    {{!-- Q&A --}}
+    <section class="biz-detail-section" aria-labelledby="qa-heading">
+      <h2 id="qa-heading">Questions &amp; Answers</h2>
+      {{#if business.questions.length}}
+        <ul class="qa-list">
+          {{#each business.questions}}
+            <li class="qa-item">
+              <p class="qa-question">Q: {{this.questionText}}</p>
+              {{#each this.answers}}
+                <p class="qa-answer">A: {{this.answerText}}</p>
+              {{/each}}
+            </li>
+          {{/each}}
+        </ul>
+      {{else}}
+        <p class="biz-detail-empty">No questions yet.</p>
+      {{/if}}
+    </section>
+
+  </div>
+</div>

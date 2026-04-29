@@ -21,7 +21,6 @@
  *   db.businesses.createIndex({ "products.holidayTag": 1 })
  * ========================================================================== */
 
-import { ObjectId } from 'mongodb';
 import { businesses as businessCollection } from '../config/mongoCollections.js';
 
 /* ---------- Tiny input validation (lecture style) ----------------------- */
@@ -34,7 +33,6 @@ const checkString = (s, label) => {
 
 const checkId = (id) => {
   id = checkString(id, 'id');
-  if (!ObjectId.isValid(id)) throw 'invalid ObjectId';
   return id;
 };
 
@@ -81,16 +79,31 @@ export const getByHolidayTag = async (holidayTag) => {
 
   const pipeline = [
     // 1. Cheap index-friendly prefilter.
-    { $match: { 'products.holidayTag': tag } },
+    { $match: { 'products.culture': tag } },
 
-    // 2. Keep only the matching products in each business doc.
+    // 2. Keep only the matching products in each business doc,
+    //    and flatten inStock/lastReported from the stockReports array
+    //    so the Handlebars template can use them directly.
     {
       $addFields: {
         products: {
-          $filter: {
-            input: '$products',
-            as:    'p',
-            cond:  { $eq: ['$$p.holidayTag', tag] }
+          $map: {
+            input: {
+              $filter: {
+                input: '$products',
+                as:    'p',
+                cond:  { $eq: ['$$p.culture', tag] }
+              }
+            },
+            as: 'p',
+            in: {
+              _id:          '$$p._id',
+              name:         '$$p.name',
+              culture:      '$$p.culture',
+              // Take the last stock report's values; default to false/null if none.
+              inStock:      { $ifNull: [{ $last: '$$p.stockReports.inStock' },      false] },
+              lastReported: { $ifNull: [{ $last: '$$p.stockReports.reportedAt' },   null]  }
+            }
           }
         }
       }
@@ -102,20 +115,13 @@ export const getByHolidayTag = async (holidayTag) => {
         name: 1,
         neighborhood: 1,
         location: 1,
-        cuisine: 1,
-        photoUrl: 1,
-        products: {
-          _id: 1,
-          itemName: 1,
-          inStock: 1,
-          lastReported: 1,
-          holidayTag: 1
-        }
+        category: 1,
+        products: 1
       }
     },
 
-    // 4. Show in-stock shops first, then alphabetically.
-    { $sort: { 'products.inStock': -1, name: 1 } }
+    // 4. In-stock businesses first, then alphabetically.
+    { $sort: { name: 1 } }
   ];
 
   const docs = await col.aggregate(pipeline).toArray();
@@ -129,7 +135,7 @@ export const getByHolidayTag = async (holidayTag) => {
  */
 export const getAllHolidayTags = async () => {
   const col = await businessCollection();
-  const tags = await col.distinct('products.holidayTag');
+  const tags = await col.distinct('products.culture');
   return tags.filter((t) => typeof t === 'string' && t.trim() !== '').sort();
 };
 
@@ -137,9 +143,8 @@ export const getAllHolidayTags = async () => {
 export const getById = async (id) => {
   id = checkId(id);
   const col = await businessCollection();
-  const doc = await col.findOne({ _id: new ObjectId(id) });
+  const doc = await col.findOne({ _id: id });
   if (!doc) throw `No business with id ${id}`;
-  doc._id = doc._id.toString();
   return doc;
 };
 

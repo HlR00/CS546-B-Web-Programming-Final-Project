@@ -1,6 +1,8 @@
 /**
- * seed-real.js
- *
+
+* seed-real.js
+
+*
  * Pulls live restaurant data from the NYC DOHMH inspection dataset
  * (data.cityofnewyork.us) and seeds our local MongoDB with real
  * businesses that have culturally-relevant products + holiday tags.
@@ -10,6 +12,7 @@
  * No API key required — Socrata Open Data API is public.
  */
 
+import { randomUUID } from 'crypto';
 import { dbConnection, closeConnection } from './config/mongoConnection.js';
 
 /* ------------------------------------------------------------------ */
@@ -171,11 +174,17 @@ function buildProducts(cuisineKey) {
 
     for (const itemName of pick) {
       products.push({
-        itemName,
-        inStock:      randomBool(0.65),
-        lastReported: new Date(Date.now() - Math.random() * 30 * 86400000)
-                        .toISOString().slice(0, 10),
-        holidayTag: tag,
+        _id:         randomUUID(),
+        name:        itemName,
+        description: '',
+        culture:     tag,
+        stockReports: [
+          {
+            userId:     'seed',
+            inStock:    randomBool(0.65),
+            reportedAt: new Date(Date.now() - Math.random() * 30 * 86400000)
+          }
+        ]
       });
     }
   }
@@ -188,17 +197,21 @@ function rowToDoc(row, cuisineKey) {
   if (!lat || !lng) return null;
 
   return {
+    _id:          randomUUID(),
     name:         row.dba || 'Unknown Business',
+    category:     cuisineKey,
+    dataSource:   'dohmh',
     neighborhood: row.boro || 'Unknown',
+    address:      null,
     location: {
       type:        'Point',
-      coordinates: [lng, lat],   // GeoJSON order: [lng, lat]
+      coordinates: [lng, lat],
     },
+    healthGrade:  null,
+    isVerified:   false,
     products:     buildProducts(cuisineKey),
-    // extra fields the rest of the team's app might want
-    cuisine:      cuisineKey,
-    source:       'DOHMH',
-    sourceId:     row.camis,
+    reviews:      [],
+    questions:    [],
   };
 }
 
@@ -236,8 +249,9 @@ const seed = async () => {
 
   // Indexes Role 2 also needs to create in the final seed
   await col.createIndex({ location: '2dsphere' });
-  await col.createIndex({ 'products.holidayTag': 1 });
-  await col.createIndex({ cuisine: 1 });
+  await col.createIndex({ 'products.culture': 1 });
+  await col.createIndex({ category: 1 });
+  await col.createIndex({ neighborhood: 1 });
 
   console.log(`\nDone. Seeded ${total} real NYC businesses across ${CUISINES.length} cuisines.`);
   await closeConnection();

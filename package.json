@@ -1,14 +1,16 @@
 {
-  "name": "role4-map-seasonal",
+  "name": "nyc-roots-and-flavors",
   "version": "1.0.0",
   "type": "module",
   "scripts": {
     "start": "node app.js",
-    "seed": "node seed.js"
+    "seed": "node seed-real.js"
   },
   "dependencies": {
+    "bcrypt": "^5.1.1",
     "express": "^4.18.2",
     "express-handlebars": "^7.1.2",
+    "express-session": "^1.18.0",
     "mongodb": "^6.3.0"
   }
 }

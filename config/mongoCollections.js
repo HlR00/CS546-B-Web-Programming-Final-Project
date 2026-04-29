@@ -1,4 +1,9 @@
-import {dbConnection} from './mongoConnection.js';
-const get=(name)=>async()=> (await dbConnection()).collection(name);
-export const users=get('users');
-export const businesses=get('businesses');
+import { dbConnection } from './mongoConnection.js';
+
+const getCollection = (name) => async () => {
+  const db = await dbConnection();
+  return db.collection(name);
+};
+
+export const businesses = getCollection('businesses');
+export const users      = getCollection('users');

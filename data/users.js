@@ -1,5 +1,173 @@
-import bcrypt from 'bcrypt'; import {ObjectId} from 'mongodb'; import {users} from '../config/mongoCollections.js'; import {checkString,validateEmail} from '../helpers/validation.js';
-const salt=10;
-export const registerUser=async(fn,ln,email,pw)=>{fn=checkString(fn,'first');ln=checkString(ln,'last');email=validateEmail(email);pw=checkString(pw,'password');const col=await users(); if(await col.findOne({email})) throw 'Email exists'; const hashedPassword=await bcrypt.hash(pw,salt); await col.insertOne({firstName:fn,lastName:ln,email,hashedPassword,role:'user',followedCultures:[],mustBuyList:[]});};
-export const loginUser=async(email,pw)=>{email=validateEmail(email); const u=await (await users()).findOne({email}); if(!u) throw 'Invalid credentials'; if(!await bcrypt.compare(pw,u.hashedPassword)) throw 'Invalid credentials'; return u;};
-export const getUserById=async(id)=> await (await users()).findOne({_id:new ObjectId(id)});
+import bcrypt from "bcrypt";
+import { ObjectId } from "mongodb";
+import { users } from "../config/mongoCollections.js";
+
+const saltRounds = 10;
+
+
+
+export const registerUser = async (
+  firstName,
+  lastName,
+  email,
+  password
+) => {
+  const collection = await users();
+
+  email = email.toLowerCase();
+
+  const existing =
+    await collection.findOne({ email });
+
+  if (existing)
+    throw "User already exists";
+
+  const hashedPassword =
+    await bcrypt.hash(
+      password,
+      saltRounds
+    );
+
+  const role =
+    email === "admin@nyc.com"
+      ? "admin"
+      : "user";
+
+  await collection.insertOne({
+    firstName,
+    lastName,
+    email,
+    hashedPassword,
+    role,
+    followedCultures: [],
+    mustBuyList: []
+  });
+};
+
+
+
+export const loginUser = async (
+  email,
+  password
+) => {
+  const collection = await users();
+
+  email = email.toLowerCase();
+
+  const user =
+    await collection.findOne({ email });
+
+  if (!user)
+    throw "Invalid Login";
+
+  const match =
+    await bcrypt.compare(
+      password,
+      user.hashedPassword
+    );
+
+  if (!match)
+    throw "Invalid Login";
+
+
+
+  if (
+    email === "admin@nyc.com" &&
+    user.role !== "admin"
+  ) {
+    await collection.updateOne(
+      { email },
+      {
+        $set: {
+          role: "admin"
+        }
+      }
+    );
+
+    user.role = "admin";
+  }
+
+  return user;
+};
+
+
+
+export const getUser = async (id) => {
+  const collection = await users();
+
+  return await collection.findOne({
+    _id: new ObjectId(id)
+  });
+};
+
+
+
+export const addCulture = async (
+  id,
+  culture
+) => {
+  const collection = await users();
+
+  await collection.updateOne(
+    { _id: new ObjectId(id) },
+    {
+      $addToSet: {
+        followedCultures: culture
+      }
+    }
+  );
+};
+
+
+
+export const removeCulture = async (
+  id,
+  culture
+) => {
+  const collection = await users();
+
+  await collection.updateOne(
+    { _id: new ObjectId(id) },
+    {
+      $pull: {
+        followedCultures: culture
+      }
+    }
+  );
+};
+
+
+
+export const addMustBuy = async (
+  id,
+  item
+) => {
+  const collection = await users();
+
+  await collection.updateOne(
+    { _id: new ObjectId(id) },
+    {
+      $addToSet: {
+        mustBuyList: item
+      }
+    }
+  );
+};
+
+
+
+export const removeMustBuy = async (
+  id,
+  item
+) => {
+  const collection = await users();
+
+  await collection.updateOne(
+    { _id: new ObjectId(id) },
+    {
+      $pull: {
+        mustBuyList: item
+      }
+    }
+  );
+};

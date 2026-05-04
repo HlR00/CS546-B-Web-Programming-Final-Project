@@ -1,56 +1,76 @@
 <section class="auth-page">
+  <div class="auth-card">
 
-<div class="auth-card">
+    <h1>Create Account</h1>
+    <p>Join NYC Roots &amp; Flavors to follow cultures and save favorites.</p>
 
-<h1>Create Account</h1>
+    {{#if error}}
+    <div class="auth-error" role="alert">
+      <span class="auth-error-icon" aria-hidden="true">!</span>
+      <span>{{error}}</span>
+    </div>
+    {{/if}}
 
-<p>Join NYC Roots & Flavors</p>
+    <form class="auth-form" method="POST" action="/register" novalidate>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:.75rem">
+        <div class="form-field">
+          <label class="form-label" for="reg-first">First Name</label>
+          <input
+            class="form-input"
+            type="text"
+            id="reg-first"
+            name="firstName"
+            placeholder="Jane"
+            autocomplete="given-name"
+            required
+          >
+        </div>
+        <div class="form-field">
+          <label class="form-label" for="reg-last">Last Name</label>
+          <input
+            class="form-input"
+            type="text"
+            id="reg-last"
+            name="lastName"
+            placeholder="Doe"
+            autocomplete="family-name"
+            required
+          >
+        </div>
+      </div>
 
-<form method="POST" action="/register">
+      <div class="form-field">
+        <label class="form-label" for="reg-email">Email Address</label>
+        <input
+          class="form-input"
+          type="email"
+          id="reg-email"
+          name="email"
+          placeholder="you@example.com"
+          autocomplete="email"
+          required
+        >
+      </div>
 
-<input
-type="text"
-name="firstName"
-placeholder="First Name"
-required
->
+      <div class="form-field">
+        <label class="form-label" for="reg-password">Password</label>
+        <input
+          class="form-input"
+          type="password"
+          id="reg-password"
+          name="password"
+          placeholder="Create a strong password"
+          autocomplete="new-password"
+          required
+        >
+      </div>
 
-<input
-type="text"
-name="lastName"
-placeholder="Last Name"
-required
->
+      <button type="submit" class="auth-submit">Create Account</button>
+    </form>
 
-<input
-type="email"
-name="email"
-placeholder="Email Address"
-required
->
+    <p class="auth-switch">
+      Already have an account? <a href="/login">Sign in</a>
+    </p>
 
-<input
-type="password"
-name="password"
-placeholder="Password"
-required
->
-
-<button type="submit" class="btn-primary">
-Create Account
-</button>
-
-</form>
-
-{{#if error}}
-<p class="error">{{error}}</p>
-{{/if}}
-
-<p class="switch-link">
-Already have an account?
-<a href="/login">Login</a>
-</p>
-
-</div>
-
+  </div>
 </section>

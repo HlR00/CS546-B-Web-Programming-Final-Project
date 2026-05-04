@@ -1,1 +1,75 @@
-<h1>Admin Dashboard</h1>
+<div class="admin-page">
+
+  <div class="admin-header">
+    <div>
+      <h1>Admin Dashboard</h1>
+      <p style="color:var(--muted);margin-top:.25rem">Manage businesses, users, and content.</p>
+    </div>
+    <span class="admin-badge">
+      <svg width="12" height="12" viewBox="0 0 12 12" fill="none" aria-hidden="true"><path d="M6 1l1.12 2.27L10 3.64l-2 1.95.47 2.75L6 7.07l-2.47 1.27L4 5.59 2 3.64l2.88-.37L6 1z" fill="currentColor"/></svg>
+      Admin
+    </span>
+  </div>
+
+  {{#if stats}}
+  <div class="admin-stats">
+    <div class="admin-stat-card">
+      <p class="admin-stat-label">Total Businesses</p>
+      <p class="admin-stat-value">{{stats.businesses}}</p>
+    </div>
+    <div class="admin-stat-card">
+      <p class="admin-stat-label">Registered Users</p>
+      <p class="admin-stat-value">{{stats.users}}</p>
+    </div>
+    <div class="admin-stat-card">
+      <p class="admin-stat-label">Seasonal Items</p>
+      <p class="admin-stat-value">{{stats.products}}</p>
+    </div>
+    <div class="admin-stat-card">
+      <p class="admin-stat-label">Reviews</p>
+      <p class="admin-stat-value">{{stats.reviews}}</p>
+    </div>
+  </div>
+  {{/if}}
+
+  <!-- Quick Actions -->
+  <div style="display:flex;gap:.75rem;flex-wrap:wrap;margin-bottom:2rem">
+    <a href="/map" class="btn btn-primary">🗺 View Map</a>
+    <a href="/seasonal" class="btn btn-ghost">🌸 Seasonal</a>
+  </div>
+
+  {{#if businesses}}
+  <div class="admin-table-wrapper">
+    <table class="admin-table">
+      <thead>
+        <tr>
+          <th>Business</th>
+          <th>Neighborhood</th>
+          <th>Category</th>
+          <th>Products</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        {{#each businesses}}
+        <tr>
+          <td><strong>{{this.name}}</strong></td>
+          <td>{{this.neighborhood}}</td>
+          <td>{{this.category}}</td>
+          <td>{{this.products.length}}</td>
+          <td>
+            <a href="/businesses/{{this._id}}" class="btn btn-ghost btn-sm">View</a>
+          </td>
+        </tr>
+        {{/each}}
+      </tbody>
+    </table>
+  </div>
+  {{else}}
+  <div style="text-align:center;padding:4rem 2rem;color:var(--muted)">
+    <p style="font-size:1.125rem;margin-bottom:.5rem">No businesses found.</p>
+    <p style="font-size:.9rem">Add some data to get started.</p>
+  </div>
+  {{/if}}
+
+</div>

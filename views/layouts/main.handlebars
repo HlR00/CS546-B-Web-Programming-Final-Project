@@ -3,27 +3,154 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>{{title}} — NYC Roots &amp; Flavors</title>
+  <title>{{#if title}}{{title}} — {{/if}}NYC Roots &amp; Flavors</title>
+  <meta name="description" content="Discover authentic cultural grocery stores, markets, and specialty foods across New York City's diverse neighborhoods.">
+
+  <!-- Fonts -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Playfair+Display:ital,wght@0,700;1,400&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;1,9..40,400&display=swap" rel="stylesheet">
+
+  <link rel="stylesheet" href="/public/css/global.css">
   <link rel="stylesheet" href="/public/css/map.css">
 </head>
 <body>
-  <nav class="site-nav">
-    <a href="/" class="site-title">NYC <span class="accent">Roots</span> &amp; Flavors</a>
-    <ul>
-      <li><a href="/map">Map</a></li>
-      <li><a href="/seasonal">Seasonal</a></li>
-    </ul>
-  </nav>
 
-  <main>
+  <!-- SKIP LINK -->
+  <a href="#main-content" class="skip-link">Skip to main content</a>
+
+  <!-- GLOBAL NAV -->
+  <header class="site-header" role="banner">
+    <nav class="site-nav" aria-label="Main navigation">
+
+      <a href="/" class="nav-brand" aria-label="NYC Roots and Flavors home">
+        <span class="nav-brand-icon" aria-hidden="true">
+          <svg width="28" height="28" viewBox="0 0 28 28" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <rect width="28" height="28" rx="6" fill="#F5B800"/>
+            <path d="M8 20 C8 14 12 10 14 8 C16 10 20 14 20 20" stroke="#1A1818" stroke-width="2" stroke-linecap="round" fill="none"/>
+            <path d="M11 20 C11 16.5 12.5 14 14 12.5 C15.5 14 17 16.5 17 20" stroke="#1A1818" stroke-width="1.5" stroke-linecap="round" fill="none"/>
+            <line x1="6" y1="21" x2="22" y2="21" stroke="#1A1818" stroke-width="2" stroke-linecap="round"/>
+          </svg>
+        </span>
+        <span class="nav-brand-text">NYC <em>Roots</em> &amp; Flavors</span>
+      </a>
+
+      <ul class="nav-links" role="list">
+        <li>
+          <a href="/map" class="nav-link">
+            <svg width="15" height="15" viewBox="0 0 16 16" fill="none" aria-hidden="true"><path d="M8 1.5C5.51 1.5 3.5 3.51 3.5 6c0 3.75 4.5 8.5 4.5 8.5S12.5 9.75 12.5 6c0-2.49-2.01-4.5-4.5-4.5zm0 6.08c-.87 0-1.58-.71-1.58-1.58s.71-1.58 1.58-1.58 1.58.71 1.58 1.58-.71 1.58-1.58 1.58z" fill="currentColor"/></svg>
+            Map
+          </a>
+        </li>
+        <li>
+          <a href="/seasonal" class="nav-link">
+            <svg width="15" height="15" viewBox="0 0 16 16" fill="none" aria-hidden="true"><path d="M8 1v2M8 13v2M1 8h2M13 8h2M3.05 3.05l1.41 1.41M11.54 11.54l1.41 1.41M3.05 12.95l1.41-1.41M11.54 4.46l1.41-1.41" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/><circle cx="8" cy="8" r="3" stroke="currentColor" stroke-width="1.5"/></svg>
+            Seasonal
+          </a>
+        </li>
+      </ul>
+
+      <div class="nav-auth">
+        {{#if user}}
+          <div class="nav-user-menu" id="user-menu-container">
+            <button class="nav-user-btn" aria-haspopup="true" aria-expanded="false" id="user-menu-btn">
+              <span class="nav-user-avatar" aria-hidden="true">{{user.firstName.[0]}}</span>
+              <span class="nav-user-name">{{user.firstName}}</span>
+              <svg class="nav-caret" width="12" height="12" viewBox="0 0 12 12" fill="none" aria-hidden="true"><path d="M2 4l4 4 4-4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            </button>
+            <div class="nav-dropdown" id="user-dropdown" hidden role="menu" aria-labelledby="user-menu-btn">
+              <a href="/dashboard" class="nav-dropdown-item" role="menuitem">
+                <svg width="15" height="15" viewBox="0 0 15 15" fill="none" aria-hidden="true"><circle cx="7.5" cy="5" r="3" stroke="currentColor" stroke-width="1.25"/><path d="M2 13c0-3.03 2.46-5.5 5.5-5.5S13 9.97 13 13" stroke="currentColor" stroke-width="1.25" stroke-linecap="round"/></svg>
+                My Profile
+              </a>
+              {{#if isAdmin}}
+              <a href="/admin" class="nav-dropdown-item" role="menuitem">
+                <svg width="15" height="15" viewBox="0 0 15 15" fill="none" aria-hidden="true"><rect x="2" y="2" width="4.5" height="4.5" rx="1" stroke="currentColor" stroke-width="1.25"/><rect x="8.5" y="2" width="4.5" height="4.5" rx="1" stroke="currentColor" stroke-width="1.25"/><rect x="2" y="8.5" width="4.5" height="4.5" rx="1" stroke="currentColor" stroke-width="1.25"/><rect x="8.5" y="8.5" width="4.5" height="4.5" rx="1" stroke="currentColor" stroke-width="1.25"/></svg>
+                Admin Dashboard
+              </a>
+              {{/if}}
+              <div class="nav-dropdown-divider" role="separator"></div>
+              <a href="/logout" class="nav-dropdown-item nav-dropdown-item--danger" role="menuitem">
+                <svg width="15" height="15" viewBox="0 0 15 15" fill="none" aria-hidden="true"><path d="M6 2H3a1 1 0 00-1 1v9a1 1 0 001 1h3M10 10l3-3-3-3M13 7H6" stroke="currentColor" stroke-width="1.25" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                Sign Out
+              </a>
+            </div>
+          </div>
+        {{else}}
+          <a href="/login" class="nav-ghost-btn">Sign In</a>
+          <a href="/register" class="nav-cta-btn">Join Free</a>
+        {{/if}}
+      </div>
+
+      <!-- Mobile hamburger -->
+      <button class="nav-hamburger" aria-label="Open navigation menu" aria-expanded="false" aria-controls="mobile-nav" id="hamburger-btn">
+        <span class="hamburger-bar"></span>
+        <span class="hamburger-bar"></span>
+        <span class="hamburger-bar"></span>
+      </button>
+    </nav>
+
+    <!-- Mobile drawer -->
+    <div class="mobile-nav" id="mobile-nav" hidden>
+      <ul class="mobile-nav-list" role="list">
+        <li><a href="/map" class="mobile-nav-link">🗺&nbsp; Map</a></li>
+        <li><a href="/seasonal" class="mobile-nav-link">🌸&nbsp; Seasonal</a></li>
+      </ul>
+      <hr class="mobile-nav-hr">
+      {{#if user}}
+        <ul class="mobile-nav-list" role="list">
+          <li><a href="/dashboard" class="mobile-nav-link">👤&nbsp; My Profile</a></li>
+          {{#if isAdmin}}<li><a href="/admin" class="mobile-nav-link">⚙️&nbsp; Admin</a></li>{{/if}}
+          <li><a href="/logout" class="mobile-nav-link mobile-nav-link--danger">↩&nbsp; Sign Out</a></li>
+        </ul>
+      {{else}}
+        <div class="mobile-nav-auth">
+          <a href="/login" class="mobile-ghost-btn">Sign In</a>
+          <a href="/register" class="mobile-cta-btn">Join Free</a>
+        </div>
+      {{/if}}
+    </div>
+  </header>
+
+  <!-- MAIN CONTENT -->
+  <main id="main-content" tabindex="-1">
     {{{body}}}
   </main>
 
-  <footer>
-    <p>NYC Roots &amp; Flavors &mdash; CS 546 Final Project</p>
+  <!-- FOOTER -->
+  <footer class="site-footer" role="contentinfo">
+    <div class="footer-inner">
+      <div class="footer-brand">
+        <p class="footer-brand-name">NYC <em>Roots</em> &amp; Flavors</p>
+        <p class="footer-tagline">Celebrating immigrant foods &amp; cultural markets across all five boroughs.</p>
+      </div>
+      <nav class="footer-nav" aria-label="Footer navigation">
+        <div class="footer-col">
+          <p class="footer-col-heading">Explore</p>
+          <ul role="list">
+            <li><a href="/map">Interactive Map</a></li>
+            <li><a href="/seasonal">Seasonal Tracker</a></li>
+          </ul>
+        </div>
+        <div class="footer-col">
+          <p class="footer-col-heading">Account</p>
+          <ul role="list">
+            {{#if user}}
+              <li><a href="/dashboard">My Profile</a></li>
+              <li><a href="/logout">Sign Out</a></li>
+            {{else}}
+              <li><a href="/login">Sign In</a></li>
+              <li><a href="/register">Create Account</a></li>
+            {{/if}}
+          </ul>
+        </div>
+      </nav>
+    </div>
+    <div class="footer-bottom">
+      <p>© 2025 NYC Roots &amp; Flavors &mdash; CS 546 Web Programming Final Project &mdash; Stevens Institute of Technology</p>
+    </div>
   </footer>
+
+  <script src="/public/js/nav.js" defer></script>
 </body>
 </html>

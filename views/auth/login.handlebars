@@ -1,42 +1,49 @@
 <section class="auth-page">
+  <div class="auth-card">
 
-<div class="auth-card">
+    <h1>Welcome Back</h1>
+    <p>Sign in to track seasonal foods across NYC.</p>
 
-<h1>Welcome Back</h1>
+    {{#if error}}
+    <div class="auth-error" role="alert">
+      <span class="auth-error-icon" aria-hidden="true">!</span>
+      <span>{{error}}</span>
+    </div>
+    {{/if}}
 
-<p>Login to NYC Roots & Flavors</p>
+    <form class="auth-form" method="POST" action="/login" novalidate>
+      <div class="form-field">
+        <label class="form-label" for="login-email">Email Address</label>
+        <input
+          class="form-input"
+          type="email"
+          id="login-email"
+          name="email"
+          placeholder="you@example.com"
+          autocomplete="email"
+          required
+        >
+      </div>
 
-<form method="POST" action="/login">
+      <div class="form-field">
+        <label class="form-label" for="login-password">Password</label>
+        <input
+          class="form-input"
+          type="password"
+          id="login-password"
+          name="password"
+          placeholder="Enter your password"
+          autocomplete="current-password"
+          required
+        >
+      </div>
 
-<input
-type="email"
-name="email"
-placeholder="Enter Email"
-required
->
+      <button type="submit" class="auth-submit">Sign In</button>
+    </form>
 
-<input
-type="password"
-name="password"
-placeholder="Enter Password"
-required
->
+    <p class="auth-switch">
+      No account yet? <a href="/register">Create one for free</a>
+    </p>
 
-<button type="submit" class="btn-primary">
-Login
-</button>
-
-</form>
-
-{{#if error}}
-<p class="error">{{error}}</p>
-{{/if}}
-
-<p class="switch-link">
-No account?
-<a href="/register">Create One</a>
-</p>
-
-</div>
-
+  </div>
 </section>

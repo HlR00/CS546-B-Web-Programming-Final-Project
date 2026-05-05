@@ -1,5 +1,39 @@
-<section class="error-page">
+<section class="error-page error-page--{{statusCode}}" role="main">
+
+  <div class="error-illustration" aria-hidden="true">
+    {{#if (eq statusCode "404")}}
+    <svg width="80" height="80" viewBox="0 0 80 80" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <circle cx="40" cy="40" r="38" stroke="#E2DAD1" stroke-width="2"/>
+      <path d="M26 52 C26 42 32 34 40 30 C48 34 54 42 54 52" stroke="#C8BEB4" stroke-width="2.5" stroke-linecap="round" fill="none"/>
+      <path d="M33 52 C33 45 36.5 40 40 37.5 C43.5 40 47 45 47 52" stroke="#C8BEB4" stroke-width="2" stroke-linecap="round" fill="none"/>
+      <line x1="22" y1="53" x2="58" y2="53" stroke="#C8BEB4" stroke-width="2.5" stroke-linecap="round"/>
+      <circle cx="28" cy="24" r="3" fill="#E2DAD1"/>
+      <circle cx="52" cy="22" r="2" fill="#E2DAD1"/>
+      <path d="M36 20 L38 24 L40 20 L42 24 L44 20" stroke="#E2DAD1" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+    </svg>
+    {{else if (eq statusCode "403")}}
+    <svg width="80" height="80" viewBox="0 0 80 80" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <circle cx="40" cy="40" r="38" stroke="#F9EDEC" stroke-width="2"/>
+      <rect x="24" y="38" width="32" height="24" rx="4" stroke="#D4918C" stroke-width="2"/>
+      <path d="M30 38V30a10 10 0 0120 0v8" stroke="#D4918C" stroke-width="2" stroke-linecap="round"/>
+      <circle cx="40" cy="50" r="3" fill="#D4918C"/>
+      <line x1="40" y1="53" x2="40" y2="57" stroke="#D4918C" stroke-width="2" stroke-linecap="round"/>
+    </svg>
+    {{else}}
+    <svg width="80" height="80" viewBox="0 0 80 80" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <circle cx="40" cy="40" r="38" stroke="#E2DAD1" stroke-width="2"/>
+      <path d="M40 22v22M40 52v4" stroke="#C8BEB4" stroke-width="3" stroke-linecap="round"/>
+    </svg>
+    {{/if}}
+  </div>
+
+  <p class="error-page-code">{{statusCode}}</p>
   <h1>{{title}}</h1>
-  <p class="error-message">{{error}}</p>
-  <a href="/">← Back to home</a>
+  <p>{{error}}</p>
+
+  <div class="error-page-actions">
+    <a href="/" class="btn btn-primary">Go Home</a>
+    <a href="javascript:history.back()" class="btn btn-ghost">← Go Back</a>
+  </div>
+
 </section>

@@ -1,97 +1,79 @@
-<section class="auth-page">
+<div class="profile-page">
 
-<div class="auth-card">
+  <div class="profile-header">
+    <div class="profile-avatar-lg" aria-hidden="true">{{user.firstName.[0]}}</div>
+    <div class="profile-header-info">
+      <h1>{{user.firstName}} {{user.lastName}}</h1>
+      <p style="color:var(--muted);font-size:.875rem;margin-bottom:.5rem">{{user.email}}</p>
+      <span class="profile-header-role {{#if (eq user.role 'admin')}}profile-header-role--admin{{else}}profile-header-role--user{{/if}}">
+        {{user.role}}
+      </span>
+    </div>
+  </div>
 
-<h1>
-Welcome {{user.firstName}}
-</h1>
+  <!-- Followed Cultures -->
+  <div class="profile-section">
+    <div class="profile-section-header">
+      <h2>Followed Cultures</h2>
+      <span style="font-size:.8125rem;color:var(--muted)">{{user.followedCultures.length}} followed</span>
+    </div>
 
-<p>
-Role: {{user.role}}
-</p>
+    {{#if user.followedCultures.length}}
+    <div class="profile-tag-list">
+      {{#each user.followedCultures}}
+        <span class="profile-tag profile-tag--culture">{{this}}</span>
+      {{/each}}
+    </div>
+    {{else}}
+    <p class="profile-empty">No cultures followed yet.</p>
+    {{/if}}
 
-<hr>
+    <div style="display:flex;flex-direction:column;gap:.625rem;margin-top:.875rem">
+      <form class="profile-add-form" method="POST" action="/culture/add">
+        <input name="culture" placeholder="Add a culture (e.g. Korean, Diwali)" required>
+        <button type="submit" class="btn btn-primary btn-sm">Add</button>
+      </form>
+      <form class="profile-add-form" method="POST" action="/culture/remove">
+        <input name="culture" placeholder="Remove a culture">
+        <button type="submit" class="btn btn-ghost btn-sm">Remove</button>
+      </form>
+    </div>
+  </div>
 
-<h3>Followed Cultures</h3>
+  <!-- Must Buy List -->
+  <div class="profile-section">
+    <div class="profile-section-header">
+      <h2>Must-Buy List</h2>
+      <span style="font-size:.8125rem;color:var(--muted)">{{user.mustBuyList.length}} items</span>
+    </div>
 
-<ul>
-{{#each user.followedCultures}}
-<li>{{this}}</li>
-{{/each}}
-</ul>
+    {{#if user.mustBuyList.length}}
+    <div class="profile-tag-list">
+      {{#each user.mustBuyList}}
+        <span class="profile-tag profile-tag--item">{{this}}</span>
+      {{/each}}
+    </div>
+    {{else}}
+    <p class="profile-empty">Your must-buy list is empty.</p>
+    {{/if}}
 
-<form method="POST" action="/culture/add">
+    <div style="display:flex;flex-direction:column;gap:.625rem;margin-top:.875rem">
+      <form class="profile-add-form" method="POST" action="/mustbuy/add">
+        <input name="item" placeholder="Add an item (e.g. Mooncake, Matzah)" required>
+        <button type="submit" class="btn btn-primary btn-sm">Add</button>
+      </form>
+      <form class="profile-add-form" method="POST" action="/mustbuy/remove">
+        <input name="item" placeholder="Remove an item">
+        <button type="submit" class="btn btn-ghost btn-sm">Remove</button>
+      </form>
+    </div>
+  </div>
 
-<input
-name="culture"
-placeholder="Add Culture"
-required
->
-
-<button class="btn-primary">
-Add Culture
-</button>
-
-</form>
-
-<form method="POST" action="/culture/remove">
-
-<input
-name="culture"
-placeholder="Remove Culture"
-required
->
-
-<button class="btn-primary">
-Remove Culture
-</button>
-
-</form>
-
-<hr>
-
-<h3>Must Buy List</h3>
-
-<ul>
-{{#each user.mustBuyList}}
-<li>{{this}}</li>
-{{/each}}
-</ul>
-
-<form method="POST" action="/mustbuy/add">
-
-<input
-name="item"
-placeholder="Add Item"
-required
->
-
-<button class="btn-primary">
-Add Item
-</button>
-
-</form>
-
-<form method="POST" action="/mustbuy/remove">
-
-<input
-name="item"
-placeholder="Remove Item"
-required
->
-
-<button class="btn-primary">
-Remove Item
-</button>
-
-</form>
-
-<hr>
-
-<a href="/map">Map</a> |
-<a href="/seasonal">Seasonal</a> |
-<a href="/logout">Logout</a>
+  <!-- Quick links -->
+  <div style="display:flex;gap:.75rem;flex-wrap:wrap;margin-top:.5rem">
+    <a href="/map" class="btn btn-primary">🗺 Explore Map</a>
+    <a href="/seasonal" class="btn btn-ghost">🌸 Seasonal Tracker</a>
+    <a href="/logout" class="btn btn-ghost" style="margin-left:auto">Sign Out</a>
+  </div>
 
 </div>
-
-</section>

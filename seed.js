@@ -1,67 +1,126 @@
-import { dbConnection, closeConnection } from './config/mongoConnection.js';
+import 'dotenv/config';
+import bcrypt from 'bcryptjs';
+import { connect, disconnect } from './db.js';
+import User from './models/User.js';
+import Business from './models/Business.js';
 
-const seed = async () => {
-  const db = await dbConnection();
-  const col = db.collection('businesses');
+async function main() {
+  await connect();
 
-  await col.deleteMany({});
+  console.log('[seed] clearing existing data...');
+  await User.deleteMany({});
+  await Business.deleteMany({});
 
-  await col.insertMany([
-    {
-      name: 'Fay Da Bakery',
-      neighborhood: 'Flushing',
-      location: { type: 'Point', coordinates: [-73.8301, 40.7590] },
-      products: [
-        { itemName: 'Nian Gao',  inStock: true,  lastReported: '2026-01-20', holidayTag: 'Lunar New Year' },
-        { itemName: 'Mooncake',  inStock: false, lastReported: '2025-09-15', holidayTag: 'Mid-Autumn' }
-      ]
-    },
-    {
-      name: 'Patel Brothers',
-      neighborhood: 'Jackson Heights',
-      location: { type: 'Point', coordinates: [-73.8918, 40.7470] },
-      products: [
-        { itemName: 'Diwali Sweets Box', inStock: true,  lastReported: '2025-10-30', holidayTag: 'Diwali' },
-        { itemName: 'Holi Colors Set',   inStock: false, lastReported: '2026-03-01', holidayTag: 'Holi' }
-      ]
-    },
-    {
-      name: 'Sahadi Fine Foods',
-      neighborhood: 'Atlantic Avenue',
-      location: { type: 'Point', coordinates: [-73.9897, 40.6883] },
-      products: [
-        { itemName: 'Mamoul Cookies',  inStock: true,  lastReported: '2026-03-20', holidayTag: 'Ramadan' },
-        { itemName: 'Date Gift Box',   inStock: true,  lastReported: '2026-03-18', holidayTag: 'Ramadan' }
-      ]
-    },
-    {
-      name: 'Katz\'s Delicatessen',
-      neighborhood: 'Lower East Side',
-      location: { type: 'Point', coordinates: [-73.9873, 40.7223] },
-      products: [
-        { itemName: 'Matzah Ball Soup Kit', inStock: true,  lastReported: '2026-04-10', holidayTag: 'Passover' },
-        { itemName: 'Latke Mix',            inStock: false, lastReported: '2025-12-10', holidayTag: 'Hanukkah' }
-      ]
-    },
-    {
-      name: 'Hong Kong Supermarket',
-      neighborhood: 'Flushing',
-      location: { type: 'Point', coordinates: [-73.8275, 40.7580] },
-      products: [
-        { itemName: 'Tang Yuan',       inStock: true,  lastReported: '2026-01-22', holidayTag: 'Lunar New Year' },
-        { itemName: 'Dragon Boat Rice Dumpling', inStock: false, lastReported: '2025-06-10', holidayTag: 'Dragon Boat' }
-      ]
-    }
-  ]);
+  console.log('[seed] creating users...');
+  const admin = await User.create({
+    firstName: 'Admin',
+    lastName: 'User',
+    email: 'admin@rnf.test',
+    hashedPassword: await bcrypt.hash('admin123', 8),
+    role: 'admin',
+    followedCultures: ['Taiwanese', 'Korean']
+  });
 
-  await col.createIndex({ location: '2dsphere' });
-  await col.createIndex({ 'products.holidayTag': 1 });
+  const candice = await User.create({
+    firstName: 'Candice',
+    lastName: 'Lee',
+    email: 'clee@stevens.edu',
+    hashedPassword: await bcrypt.hash('password1', 8),
+    role: 'user',
+    followedCultures: ['Taiwanese', 'Korean']
+  });
 
-  console.log('Seeded 5 businesses and created indexes.');
-  await closeConnection();
-};
+  const dev = await User.create({
+    firstName: 'Dev',
+    lastName: 'Shah',
+    email: 'dshah@stevens.edu',
+    hashedPassword: await bcrypt.hash('password1', 8),
+    role: 'user',
+    followedCultures: ['Indian']
+  });
 
-seed().catch((err) => {
-  console.error('Seed failed:', err);
+  console.log('[seed] creating businesses...');
+  const taiwaneseDelight = await Business.create({
+    name: 'Taiwanese Delight',
+    category: 'Taiwanese',
+    dataSource: 'dohmh',
+    neighborhood: 'Flushing',
+    address: '40-52 Main St, Flushing, NY',
+    location: { type: 'Point', coordinates: [-73.83, 40.76] },
+    healthGrade: 'A',
+    isVerified: true,
+    products: [
+      { name: 'Pineapple Cake', description: 'Traditional Taiwanese pastry', culture: 'Taiwanese' },
+      { name: 'Bubble Tea', description: 'Milk tea with tapioca pearls', culture: 'Taiwanese' }
+    ]
+  });
+
+  const koreanHouse = await Business.create({
+    name: 'Kimchi House',
+    category: 'Korean',
+    dataSource: 'dohmh',
+    neighborhood: 'Koreatown',
+    address: '32 W 32nd St, New York, NY',
+    location: { type: 'Point', coordinates: [-73.9857, 40.7478] },
+    healthGrade: 'A',
+    isVerified: true,
+    products: [
+      { name: 'Kimchi Jjigae', description: 'Spicy kimchi stew', culture: 'Korean' },
+      { name: 'Bibimbap', description: 'Mixed rice bowl with veggies', culture: 'Korean' }
+    ]
+  });
+
+  const indianSpice = await Business.create({
+    name: 'Spice Bazaar',
+    category: 'Indian',
+    dataSource: 'sbs',
+    neighborhood: 'Jackson Heights',
+    address: '73-19 37th Rd, Jackson Heights, NY',
+    location: { type: 'Point', coordinates: [-73.8904, 40.7466] },
+    healthGrade: 'A',
+    isVerified: false,
+    products: [
+      { name: 'Samosa', description: 'Fried pastry with spiced potato filling', culture: 'Indian' },
+      { name: 'Chai Masala', description: 'Spiced milk tea', culture: 'Indian' }
+    ]
+  });
+
+  taiwaneseDelight.reviews.push({
+    userId: candice._id,
+    rating: 5,
+    comment: 'Very authentic taste!'
+  });
+  taiwaneseDelight.products[0].stockReports.push({
+    userId: candice._id,
+    inStock: true
+  });
+  taiwaneseDelight.questions.push({
+    userId: candice._id,
+    questionText: 'Do they sell mooncakes year-round?',
+    answers: [
+      { userId: admin._id, answerText: 'Only during festivals' }
+    ]
+  });
+  await taiwaneseDelight.save();
+
+  candice.mustBuyList = [
+    taiwaneseDelight.products[0]._id,
+    koreanHouse.products[0]._id
+  ];
+  await candice.save();
+
+  console.log('\n--- seed done ---');
+  console.log('admin   : admin@rnf.test / admin123');
+  console.log('user    : clee@stevens.edu / password1');
+  console.log('user    : dshah@stevens.edu / password1');
+  console.log(`businesses: ${await Business.countDocuments()}`);
+  console.log(`users     : ${await User.countDocuments()}`);
+
+  await disconnect();
+}
+
+main().catch(async (err) => {
+  console.error(err);
+  await disconnect().catch(() => {});
   process.exit(1);
 });

@@ -172,3 +172,88 @@ export const getNear = async (lng, lat, meters = 1500) => {
 function escapeRegex(str) {
   return str.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
 }
+
+/* ---------- MUTATION 1: add a review ----------------------------------- */
+export const addReview = async (businessId, userId, rating, comment) => {
+  businessId = checkId(businessId);
+  comment    = checkString(comment, 'comment');
+  rating     = parseInt(rating);
+  if (isNaN(rating) || rating < 1 || rating > 5) throw 'Rating must be 1-5';
+
+  const col    = await businessCollection();
+  const review = {
+    _id:       crypto.randomUUID(),
+    userId:    String(userId),
+    rating,
+    comment,
+    createdAt: new Date().toISOString(),
+  };
+  const result = await col.updateOne(
+    { _id: businessId },
+    { $push: { reviews: review } }
+  );
+  if (result.matchedCount === 0) throw `No business with id ${businessId}`;
+  return review;
+};
+
+/* ---------- MUTATION 2: add a question --------------------------------- */
+export const addQuestion = async (businessId, userId, questionText) => {
+  businessId   = checkId(businessId);
+  questionText = checkString(questionText, 'questionText');
+
+  const col      = await businessCollection();
+  const question = {
+    _id:          crypto.randomUUID(),
+    userId:       String(userId),
+    questionText,
+    createdAt:    new Date().toISOString(),
+    answers:      [],
+  };
+  const result = await col.updateOne(
+    { _id: businessId },
+    { $push: { questions: question } }
+  );
+  if (result.matchedCount === 0) throw `No business with id ${businessId}`;
+  return question;
+};
+
+/* ---------- MUTATION 3: add an answer to a question ------------------- */
+export const addAnswer = async (businessId, questionId, userId, answerText) => {
+  businessId = checkId(businessId);
+  questionId = checkString(questionId, 'questionId');
+  answerText = checkString(answerText, 'answerText');
+
+  const col    = await businessCollection();
+  const answer = {
+    _id:        crypto.randomUUID(),
+    userId:     String(userId),
+    answerText,
+    createdAt:  new Date().toISOString(),
+  };
+  const result = await col.updateOne(
+    { _id: businessId, 'questions._id': questionId },
+    { $push: { 'questions.$.answers': answer } }
+  );
+  if (result.matchedCount === 0) throw `Question or business not found`;
+  return answer;
+};
+
+/* ---------- MUTATION 4: add a stock report (AJAX) --------------------- */
+export const addStockReport = async (businessId, productId, userId, inStock) => {
+  businessId = checkId(businessId);
+  productId  = checkString(productId, 'productId');
+  if (typeof inStock !== 'boolean') throw 'inStock must be a boolean';
+
+  const col    = await businessCollection();
+  const report = {
+    userId:     String(userId),
+    inStock,
+    reportedAt: new Date().toISOString(),
+  };
+  const result = await col.updateOne(
+    { _id: businessId, 'products._id': productId },
+    { $push: { 'products.$.stockReports': report } }
+  );
+  if (result.matchedCount === 0) throw `Product or business not found`;
+  return report;
+};

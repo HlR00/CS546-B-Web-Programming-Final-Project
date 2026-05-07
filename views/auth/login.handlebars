@@ -27,35 +27,19 @@
 
       <div class="form-field">
         <label class="form-label" for="login-password">Password</label>
-        <div class="password-wrapper" style="position: relative; width: 100%;">
-          <input
-            class="form-input"
-            type="password"
-            id="login-password"
-            name="password"
-            placeholder="Enter your password"
-            autocomplete="current-password"
-            style="padding-right: 40px; width: 100%; box-sizing: border-box;"
-            required
-          >
-          <button
-            type="button"
-            id="togglePassword"
-            style="position: absolute; right: 10px; top: 50%; transform: translateY(-50%); background: none; border: none; cursor: pointer; padding: 0; font-size: 1.2rem;"
-            aria-label="Toggle password visibility"
-            title="Show/Hide Password"
-          >
-            👁️
-          </button>
-        </div>
+        <input
+          class="form-input"
+          type="password"
+          id="login-password"
+          name="password"
+          placeholder="Enter your password"
+          autocomplete="current-password"
+          required
+        >
       </div>
 
       <button type="submit" class="auth-submit">Sign In</button>
     </form>
-
-    <p class="auth-switch" style="margin-top: 8px;">
-      <a href="/forgot-password">Forgot your password?</a>
-    </p>
 
     <p class="auth-switch">
       No account yet? <a href="/register">Create one for free</a>
@@ -63,22 +47,3 @@
 
   </div>
 </section>
-
-<script>
-  document.addEventListener('DOMContentLoaded', function() {
-    const togglePassword = document.getElementById('togglePassword');
-    const passwordInput = document.getElementById('login-password');
-
-    if (togglePassword && passwordInput) {
-      togglePassword.addEventListener('click', function () {
-        
-        const isPassword = passwordInput.getAttribute('type') === 'password';
-        
-        
-        passwordInput.setAttribute('type', isPassword ? 'text' : 'password');
-        
-        this.textContent = isPassword ? '🙈' : '👁️';
-      });
-    }
-  });
-</script>

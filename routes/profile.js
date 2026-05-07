@@ -21,10 +21,7 @@ router.get("/dashboard", async (req, res) => {
     req.session.user._id
   );
 
-  if (!user) {
-    req.session.destroy();
-    return res.redirect('/login');
-  }
+
 
   req.session.user.role = user.role;
 

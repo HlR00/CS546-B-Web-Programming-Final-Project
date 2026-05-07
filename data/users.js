@@ -1,5 +1,4 @@
 import bcrypt from "bcrypt";
-import { v4 as uuid } from "uuid";
 import { ObjectId } from "mongodb";
 import { users } from "../config/mongoCollections.js";
 
@@ -35,7 +34,6 @@ export const registerUser = async (
       : "user";
 
   await collection.insertOne({
-    _id: uuid(),
     firstName,
     lastName,
     email,
@@ -97,11 +95,9 @@ export const loginUser = async (
 export const getUser = async (id) => {
   const collection = await users();
 
-  let user = await collection.findOne({ _id: id });
-  if (!user && /^[a-f\d]{24}$/i.test(id)) {
-    user = await collection.findOne({ _id: new ObjectId(id) });
-  }
-  return user;
+  return await collection.findOne({
+    _id: new ObjectId(id)
+  });
 };
 
 
@@ -113,7 +109,7 @@ export const addCulture = async (
   const collection = await users();
 
   await collection.updateOne(
-    { _id: id },
+    { _id: new ObjectId(id) },
     {
       $addToSet: {
         followedCultures: culture
@@ -131,7 +127,7 @@ export const removeCulture = async (
   const collection = await users();
 
   await collection.updateOne(
-    { _id: id },
+    { _id: new ObjectId(id) },
     {
       $pull: {
         followedCultures: culture
@@ -149,7 +145,7 @@ export const addMustBuy = async (
   const collection = await users();
 
   await collection.updateOne(
-    { _id: id },
+    { _id: new ObjectId(id) },
     {
       $addToSet: {
         mustBuyList: item
@@ -167,58 +163,11 @@ export const removeMustBuy = async (
   const collection = await users();
 
   await collection.updateOne(
-    { _id: id },
+    { _id: new ObjectId(id) },
     {
       $pull: {
         mustBuyList: item
       }
-    }
-  );
-};
-
-
-
-export const generateResetToken = async (email) => {
-  const collection = await users();
-
-  email = email.toLowerCase();
-
-  const user = await collection.findOne({ email });
-  if (!user) throw "No account found with that email";
-
-  const token = uuid();
-  const expires = new Date(Date.now() + 60 * 60 * 1000); // 1 hour
-
-  await collection.updateOne(
-    { email },
-    {
-      $set: {
-        resetPasswordToken: token,
-        resetPasswordExpires: expires
-      }
-    }
-  );
-
-  return token;
-};
-
-
-
-export const resetPassword = async (token, newPassword) => {
-  const collection = await users();
-
-  const user = await collection.findOne({ resetPasswordToken: token });
-
-  if (!user) throw "Invalid or expired reset link";
-  if (user.resetPasswordExpires < new Date()) throw "Reset link has expired";
-
-  const hashedPassword = await bcrypt.hash(newPassword, saltRounds);
-
-  await collection.updateOne(
-    { resetPasswordToken: token },
-    {
-      $set: { hashedPassword },
-      $unset: { resetPasswordToken: "", resetPasswordExpires: "" }
     }
   );
 };

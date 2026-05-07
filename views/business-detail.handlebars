@@ -1,91 +1,199 @@
-{{!-- views/business-detail.handlebars --}}
-
 <div class="biz-detail-page">
 
-  <div class="seasonal-page-header">
-    <div class="seasonal-page-header-inner">
-      <span class="seasonal-tag-pill">{{business.category}}</span>
+  {{!-- Page header --}}
+  <div class="biz-detail-header">
+    <div class="biz-detail-header-inner">
+      {{#if business.category}}
+        <span class="biz-tag-pill">{{business.category}}</span>
+      {{/if}}
       <h1>{{business.name}}</h1>
-      <nav class="page-links" aria-label="Page navigation">
-        <a href="/seasonal">&#8592; Seasonal Tracker</a>
-        <a href="/map">View on map &#8599;</a>
+      <div class="biz-meta-bar">
+        {{#if business.neighborhood}}<span>&#128205; {{business.neighborhood}}</span>{{/if}}
+        {{#if business.address}}<span>{{business.address}}</span>{{/if}}
+        {{#if business.healthGrade}}
+          <span class="biz-health-badge">Health Grade: <strong>{{business.healthGrade}}</strong></span>
+        {{/if}}
+        {{#if business.isVerified}}
+          <span class="biz-verified-badge">&#10003; Minority-Owned Certified</span>
+        {{/if}}
+      </div>
+      <nav class="biz-page-links" aria-label="Page sections">
+        <a href="/map">&#8592; Back to Map</a>
+        <a href="#products">Products</a>
+        <a href="#reviews">Reviews</a>
+        <a href="#qa">Q&amp;A</a>
       </nav>
     </div>
   </div>
 
   <div class="biz-detail-body">
 
-    {{!-- Info bar --}}
-    <div class="biz-detail-meta">
-      <span>&#128205; {{business.neighborhood}}</span>
-      {{#if business.address}}<span>{{business.address}}</span>{{/if}}
-      {{#if business.healthGrade}}<span>Health Grade: <strong>{{business.healthGrade}}</strong></span>{{/if}}
-    </div>
-
-    {{!-- Products --}}
-    {{#if business.products.length}}
-      <section class="biz-detail-section" aria-labelledby="products-heading">
-        <h2 id="products-heading">Seasonal Products</h2>
-        <ul class="product-chips" style="margin-top:.75rem">
-          {{#each business.products}}
-            <li>
-              {{#if this.inStock}}
-                <span class="chip chip-stock">
-                  <span class="chip-dot" aria-hidden="true"></span>
-                  {{this.name}}
-                  <em style="font-weight:400;font-style:normal;opacity:.7">&nbsp;· {{this.culture}}</em>
-                </span>
-              {{else}}
-                <span class="chip chip-out">
-                  <span class="chip-dot" aria-hidden="true"></span>
-                  {{this.name}}
-                  <em style="font-weight:400;font-style:normal;opacity:.7">&nbsp;· {{this.culture}}</em>
-                </span>
-              {{/if}}
-            </li>
-          {{/each}}
-        </ul>
-      </section>
+    {{!-- Flash messages --}}
+    {{#if success}}
+      <div class="biz-flash biz-flash--success" role="alert">&#10003; {{success}}</div>
+    {{/if}}
+    {{#if error}}
+      <div class="biz-flash biz-flash--error" role="alert">&#9888; {{error}}</div>
     {{/if}}
 
-    {{!-- Reviews --}}
-    <section class="biz-detail-section" aria-labelledby="reviews-heading">
-      <h2 id="reviews-heading">Reviews</h2>
-      {{#if business.reviews.length}}
-        <ul class="review-list">
-          {{#each business.reviews}}
-            <li class="review-card">
-              <div class="review-rating" aria-label="Rating: {{this.rating}} out of 5">
-                {{#each (times this.rating)}}<span aria-hidden="true">&#9733;</span>{{/each}}
+    {{!-- Products & Stock Status --}}
+    <section class="biz-detail-section" id="products" aria-labelledby="products-heading">
+      <h2 id="products-heading">Products &amp; Stock Status</h2>
+
+      {{#if business.products.length}}
+        <ul class="biz-product-list">
+          {{#each business.products}}
+            <li class="biz-product-card" data-product-id="{{this._id}}">
+              <div class="biz-product-info">
+                <span class="biz-product-name">{{this.name}}</span>
+                {{#if this.culture}}
+                  <span class="biz-product-culture">{{this.culture}}</span>
+                {{/if}}
+                {{#if this.description}}
+                  <p class="biz-product-desc">{{this.description}}</p>
+                {{/if}}
               </div>
-              <p class="review-comment">{{this.comment}}</p>
-              <p class="review-date">{{this.createdAt}}</p>
+              <div class="biz-product-stock">
+                {{#if this.inStock}}
+                  <span class="biz-stock-badge biz-stock-badge--in" aria-label="In stock">&#9679; In Stock</span>
+                {{else if (eq this.inStock false)}}
+                  <span class="biz-stock-badge biz-stock-badge--out" aria-label="Out of stock">&#9679; Out of Stock</span>
+                {{else}}
+                  <span class="biz-stock-badge biz-stock-badge--unknown" aria-label="Unknown">&#9679; Unknown</span>
+                {{/if}}
+                {{#if this.reportCount}}
+                  <span class="biz-stock-count">{{this.reportCount}} report(s)</span>
+                {{/if}}
+                {{#if ../user}}
+                  <div class="biz-stock-btns" data-business-id="{{../business._id}}" data-product-id="{{this._id}}">
+                    <button class="biz-stock-btn biz-stock-btn--in" data-value="true">&#10003; In Stock</button>
+                    <button class="biz-stock-btn biz-stock-btn--out" data-value="false">&#10007; Out of Stock</button>
+                  </div>
+                {{else}}
+                  <p class="biz-stock-login-note"><a href="/login">Sign in</a> to report stock</p>
+                {{/if}}
+              </div>
             </li>
           {{/each}}
         </ul>
       {{else}}
-        <p class="biz-detail-empty">No reviews yet.</p>
+        <p class="biz-empty">No products listed yet.</p>
+      {{/if}}
+    </section>
+
+    {{!-- Reviews --}}
+    <section class="biz-detail-section" id="reviews" aria-labelledby="reviews-heading">
+      <h2 id="reviews-heading">Reviews</h2>
+
+      {{#if business.reviews.length}}
+        <ul class="biz-review-list">
+          {{#each business.reviews}}
+            <li class="biz-review-card">
+              <div class="biz-review-rating" aria-label="Rating: {{this.rating}} out of 5">
+                {{#each (times this.rating)}}
+                  <span class="biz-star biz-star--filled" aria-hidden="true">&#9733;</span>
+                {{/each}}
+                {{#each (times (gt 5 ../this.rating))}}{{/each}}
+              </div>
+              <p class="biz-review-comment">{{this.comment}}</p>
+              <p class="biz-review-date">{{formatDate this.createdAt}}</p>
+            </li>
+          {{/each}}
+        </ul>
+      {{else}}
+        <p class="biz-empty">No reviews yet. Be the first!</p>
+      {{/if}}
+
+      {{!-- Review form --}}
+      {{#if user}}
+        <div class="biz-form-wrapper">
+          <h3>Leave a Review</h3>
+          <form class="biz-form" method="POST" action="/businesses/{{business._id}}/reviews">
+            <div class="biz-form-field">
+              <label class="biz-form-label" for="review-rating">Rating</label>
+              <select class="biz-form-select" id="review-rating" name="rating" required>
+                <option value="">Select rating…</option>
+                <option value="5">&#9733;&#9733;&#9733;&#9733;&#9733; — Excellent</option>
+                <option value="4">&#9733;&#9733;&#9733;&#9733; — Good</option>
+                <option value="3">&#9733;&#9733;&#9733; — Average</option>
+                <option value="2">&#9733;&#9733; — Poor</option>
+                <option value="1">&#9733; — Terrible</option>
+              </select>
+            </div>
+            <div class="biz-form-field">
+              <label class="biz-form-label" for="review-comment">Your review</label>
+              <textarea class="biz-form-textarea" id="review-comment" name="comment" rows="4"
+                placeholder="Share your experience…" required></textarea>
+            </div>
+            <button class="biz-form-submit" type="submit">Post Review</button>
+          </form>
+        </div>
+      {{else}}
+        <p class="biz-login-prompt"><a href="/login">Sign in</a> to leave a review.</p>
       {{/if}}
     </section>
 
     {{!-- Q&A --}}
-    <section class="biz-detail-section" aria-labelledby="qa-heading">
+    <section class="biz-detail-section" id="qa" aria-labelledby="qa-heading">
       <h2 id="qa-heading">Questions &amp; Answers</h2>
+
       {{#if business.questions.length}}
-        <ul class="qa-list">
+        <ul class="biz-qa-list">
           {{#each business.questions}}
-            <li class="qa-item">
-              <p class="qa-question">Q: {{this.questionText}}</p>
-              {{#each this.answers}}
-                <p class="qa-answer">A: {{this.answerText}}</p>
-              {{/each}}
+            <li class="biz-qa-item">
+              <p class="biz-qa-question">
+                <span class="biz-qa-label">Q</span>
+                {{this.questionText}}
+              </p>
+              <p class="biz-qa-date">Asked {{formatDate this.createdAt}}</p>
+
+              {{#if this.answers.length}}
+                <ul class="biz-answer-list">
+                  {{#each this.answers}}
+                    <li class="biz-answer-item">
+                      <span class="biz-qa-label biz-qa-label--answer">A</span>
+                      {{this.answerText}}
+                      <span class="biz-qa-date">{{formatDate this.createdAt}}</span>
+                    </li>
+                  {{/each}}
+                </ul>
+              {{/if}}
+
+              {{!-- Answer form --}}
+              {{#if ../user}}
+                <form class="biz-answer-form" method="POST"
+                  action="/businesses/{{../../business._id}}/questions/{{this._id}}/answers">
+                  <input class="biz-form-input biz-answer-input" type="text" name="answerText"
+                    placeholder="Write an answer…" required>
+                  <button class="biz-answer-btn" type="submit">Answer</button>
+                </form>
+              {{/if}}
             </li>
           {{/each}}
         </ul>
       {{else}}
-        <p class="biz-detail-empty">No questions yet.</p>
+        <p class="biz-empty">No questions yet. Ask one below!</p>
+      {{/if}}
+
+      {{!-- Ask a question --}}
+      {{#if user}}
+        <div class="biz-form-wrapper">
+          <h3>Ask a Question</h3>
+          <form class="biz-form" method="POST" action="/businesses/{{business._id}}/questions">
+            <div class="biz-form-field">
+              <label class="biz-form-label" for="question-text">Your question</label>
+              <textarea class="biz-form-textarea" id="question-text" name="questionText" rows="3"
+                placeholder="e.g. Do they still carry salted egg yolk buns?" required></textarea>
+            </div>
+            <button class="biz-form-submit" type="submit">Post Question</button>
+          </form>
+        </div>
+      {{else}}
+        <p class="biz-login-prompt"><a href="/login">Sign in</a> to ask a question.</p>
       {{/if}}
     </section>
 
   </div>
 </div>
+
+<script src="/public/js/business-detail.js" defer></script>

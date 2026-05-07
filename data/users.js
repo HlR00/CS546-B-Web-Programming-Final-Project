@@ -1,5 +1,5 @@
 import bcrypt from "bcrypt";
-import { ObjectId } from "mongodb";
+import { v4 as uuid } from "uuid";
 import { users } from "../config/mongoCollections.js";
 
 const saltRounds = 10;
@@ -34,6 +34,7 @@ export const registerUser = async (
       : "user";
 
   await collection.insertOne({
+    _id: uuid(),
     firstName,
     lastName,
     email,
@@ -96,7 +97,7 @@ export const getUser = async (id) => {
   const collection = await users();
 
   return await collection.findOne({
-    _id: new ObjectId(id)
+    _id: id
   });
 };
 
@@ -109,7 +110,7 @@ export const addCulture = async (
   const collection = await users();
 
   await collection.updateOne(
-    { _id: new ObjectId(id) },
+    { _id: id },
     {
       $addToSet: {
         followedCultures: culture
@@ -127,7 +128,7 @@ export const removeCulture = async (
   const collection = await users();
 
   await collection.updateOne(
-    { _id: new ObjectId(id) },
+    { _id: id },
     {
       $pull: {
         followedCultures: culture
@@ -145,7 +146,7 @@ export const addMustBuy = async (
   const collection = await users();
 
   await collection.updateOne(
-    { _id: new ObjectId(id) },
+    { _id: id },
     {
       $addToSet: {
         mustBuyList: item
@@ -163,7 +164,7 @@ export const removeMustBuy = async (
   const collection = await users();
 
   await collection.updateOne(
-    { _id: new ObjectId(id) },
+    { _id: id },
     {
       $pull: {
         mustBuyList: item

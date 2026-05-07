@@ -102,7 +102,7 @@ export function buildApp() {
 }
 
 const PORT = process.env.PORT || 3000;
-const isDirectRun = import.meta.url === `file://${process.argv[1]}`;
+const isDirectRun = process.argv[1] === fileURLToPath(import.meta.url);
 
 if (isDirectRun) {
   (async () => {

@@ -1,5 +1,6 @@
 import { randomUUID } from 'crypto';
 import { dbConnection, closeConnection } from './config/mongoConnection.js';
+import { registerUser } from './data/users.js';
 
 const CUISINE_CONFIG = {
   Chinese: {
@@ -237,6 +238,17 @@ const seed = async () => {
   await col.createIndex({ neighborhood: 1 });
 
   console.log(`\nDone. Seeded ${total} real NYC businesses across ${CUISINES.length} cuisines.`);
+
+  // Create admin user (skip if already exists)
+  const userCol = db.collection('users');
+  const existing = await userCol.findOne({ email: 'admin@nyc.com' });
+  if (!existing) {
+    await registerUser('Admin', 'NYC', 'admin@nyc.com', 'AdminPassword123!');
+    console.log('Created admin user: admin@nyc.com');
+  } else {
+    console.log('Admin user already exists, skipping.');
+  }
+
   await closeConnection();
 };
 

@@ -3,7 +3,6 @@ import * as businessData from '../data/businesses.js';
 
 const router = Router();
 
-/* ---- HTML page ------------------------------------ */
 router.get('/map', async (req, res) => {
   try {
     const tags = await businessData.getAllHolidayTags();
@@ -14,7 +13,6 @@ router.get('/map', async (req, res) => {
   }
 });
 
-/* ---- JSON feed for the Leaflet map ---------------- */
 router.get('/api/businesses', async (req, res) => {
   try {
     const { neighborhood, holidayTag } = req.query;

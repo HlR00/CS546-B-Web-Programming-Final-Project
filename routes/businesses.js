@@ -4,14 +4,10 @@ import { requireLogin } from '../middleware/auth.js';
 
 const router = Router();
 
-/* ------------------------------------------------------------------ */
-/* GET /businesses/:id  — Business detail page                         */
-/* ------------------------------------------------------------------ */
 router.get('/businesses/:id', async (req, res) => {
   try {
     const business = await businessData.getById(req.params.id);
 
-    // Derive latest inStock from stockReports for each product
     const products = (business.products || []).map((p) => {
       const reports = p.stockReports || [];
       const latest  = reports[reports.length - 1];
@@ -23,7 +19,6 @@ router.get('/businesses/:id', async (req, res) => {
       };
     });
 
-    // Pull flash messages set by POST redirects
     const success = req.session.flash_success || null;
     const error   = req.session.flash_error   || null;
     delete req.session.flash_success;
@@ -44,9 +39,6 @@ router.get('/businesses/:id', async (req, res) => {
   }
 });
 
-/* ------------------------------------------------------------------ */
-/* POST /businesses/:id/reviews  — Submit a review                     */
-/* ------------------------------------------------------------------ */
 router.post('/businesses/:id/reviews', requireLogin, async (req, res) => {
   const { id } = req.params;
   const { rating, comment } = req.body;
@@ -62,9 +54,6 @@ router.post('/businesses/:id/reviews', requireLogin, async (req, res) => {
   return res.redirect(`/businesses/${id}#reviews`);
 });
 
-/* ------------------------------------------------------------------ */
-/* POST /businesses/:id/questions  — Ask a question                    */
-/* ------------------------------------------------------------------ */
 router.post('/businesses/:id/questions', requireLogin, async (req, res) => {
   const { id } = req.params;
   const { questionText } = req.body;
@@ -80,9 +69,6 @@ router.post('/businesses/:id/questions', requireLogin, async (req, res) => {
   return res.redirect(`/businesses/${id}#qa`);
 });
 
-/* ------------------------------------------------------------------ */
-/* POST /businesses/:id/questions/:qid/answers  — Answer a question    */
-/* ------------------------------------------------------------------ */
 router.post('/businesses/:id/questions/:qid/answers', requireLogin, async (req, res) => {
   const { id, qid } = req.params;
   const { answerText } = req.body;
@@ -98,9 +84,6 @@ router.post('/businesses/:id/questions/:qid/answers', requireLogin, async (req, 
   return res.redirect(`/businesses/${id}#qa`);
 });
 
-/* ------------------------------------------------------------------ */
-/* POST /api/businesses/:id/products/:pid/stock  — AJAX stock report   */
-/* ------------------------------------------------------------------ */
 router.post('/api/businesses/:id/products/:pid/stock', requireLogin, async (req, res) => {
   const { id, pid } = req.params;
   const { inStock }  = req.body;

@@ -29,8 +29,8 @@
     {{/if}}
 
     <div style="display:flex;flex-direction:column;gap:.625rem;margin-top:.875rem">
-      <form class="profile-add-form" method="POST" action="/culture/add">
-        <input name="culture" placeholder="Add a culture (e.g. Korean, Diwali)" required>
+      <form class="profile-add-form" id="culture-add-form" method="POST" action="/culture/add">
+        <input name="culture" placeholder="Add a culture (e.g. Korean, Diwali)" required maxlength="100">
         <button type="submit" class="btn btn-primary btn-sm">Add</button>
       </form>
       <form class="profile-add-form" method="POST" action="/culture/remove">
@@ -58,8 +58,8 @@
     {{/if}}
 
     <div style="display:flex;flex-direction:column;gap:.625rem;margin-top:.875rem">
-      <form class="profile-add-form" method="POST" action="/mustbuy/add">
-        <input name="item" placeholder="Add an item (e.g. Mooncake, Matzah)" required>
+      <form class="profile-add-form" id="mustbuy-add-form" method="POST" action="/mustbuy/add">
+        <input name="item" placeholder="Add an item (e.g. Mooncake, Matzah)" required maxlength="200">
         <button type="submit" class="btn btn-primary btn-sm">Add</button>
       </form>
       <form class="profile-add-form" method="POST" action="/mustbuy/remove">
@@ -68,6 +68,8 @@
       </form>
     </div>
   </div>
+
+  <script src="/public/js/profile.js" defer></script>
 
   <!-- Quick links -->
   <div style="display:flex;gap:.75rem;flex-wrap:wrap;margin-top:.5rem">

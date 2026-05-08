@@ -1,23 +1,6 @@
-/**
-
-* seed-real.js
-
-*
- * Pulls live restaurant data from the NYC DOHMH inspection dataset
- * (data.cityofnewyork.us) and seeds our local MongoDB with real
- * businesses that have culturally-relevant products + holiday tags.
- *
- * Run:  node seed-real.js
- *
- * No API key required — Socrata Open Data API is public.
- */
-
 import { randomUUID } from 'crypto';
 import { dbConnection, closeConnection } from './config/mongoConnection.js';
 
-/* ------------------------------------------------------------------ */
-/* Cuisine → holiday products mapping                                  */
-/* ------------------------------------------------------------------ */
 const CUISINE_CONFIG = {
   Chinese: {
     holidayProducts: {

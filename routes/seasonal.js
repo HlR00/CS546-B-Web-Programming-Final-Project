@@ -3,7 +3,6 @@ import * as businessData from '../data/businesses.js';
 
 const router = Router();
 
-/* Photo + subtitle for each known holiday tag */
 const HOLIDAY_META = {
   'Lunar New Year':    { photo: 'https://images.unsplash.com/photo-1579952363873-27f3bade9f55?w=600&h=400&fit=crop&auto=format', subtitle: 'Chinese & Korean Spring Festival', grad: 'h-grad-lunar' },
   'Mid-Autumn':        { photo: 'https://images.unsplash.com/photo-1593001872095-7d5b3868dd20?w=600&h=400&fit=crop&auto=format', subtitle: 'Moon Festival & Mooncakes', grad: 'h-grad-lunar' },
@@ -21,15 +20,14 @@ const HOLIDAY_META = {
   'Christmas':         { photo: 'https://images.unsplash.com/photo-1543589077-47d81606c1bf?w=600&h=400&fit=crop&auto=format', subtitle: 'Holiday Season traditions', grad: 'h-grad-passover' },
   'Carnival':          { photo: 'https://images.unsplash.com/photo-1540189549336-e6e99c3679fe?w=600&h=400&fit=crop&auto=format', subtitle: 'Caribbean Carnival festival', grad: 'h-grad-default' },
   'Pohela Boishakh':   { photo: 'https://images.unsplash.com/photo-1567620905732-2d1ec7ab7445?w=600&h=400&fit=crop&auto=format', subtitle: 'Bengali New Year', grad: 'h-grad-default' },
-  'Ethiopian Christmas (Genna)':        { photo: 'https://images.unsplash.com/photo-1604329760661-e71dc83f8f26?w=600&h=400&fit=crop&auto=format', subtitle: 'Ethiopian Orthodox Christmas', grad: 'h-grad-default' },
-  'Ethiopian New Year (Enkutatash)':    { photo: 'https://images.unsplash.com/photo-1604329760661-e71dc83f8f26?w=600&h=400&fit=crop&auto=format', subtitle: 'Ethiopian New Year', grad: 'h-grad-default' },
+  'Ethiopian Christmas (Genna)':     { photo: 'https://images.unsplash.com/photo-1604329760661-e71dc83f8f26?w=600&h=400&fit=crop&auto=format', subtitle: 'Ethiopian Orthodox Christmas', grad: 'h-grad-default' },
+  'Ethiopian New Year (Enkutatash)': { photo: 'https://images.unsplash.com/photo-1604329760661-e71dc83f8f26?w=600&h=400&fit=crop&auto=format', subtitle: 'Ethiopian New Year', grad: 'h-grad-default' },
   'Fiesta':            { photo: 'https://images.unsplash.com/photo-1512058564366-18510be2db19?w=600&h=400&fit=crop&auto=format', subtitle: 'Filipino Fiesta celebration', grad: 'h-grad-default' },
   'Dragon Boat':       { photo: 'https://images.unsplash.com/photo-1563245372-f21724e3856d?w=600&h=400&fit=crop&auto=format', subtitle: 'Dragon Boat Festival', grad: 'h-grad-lunar' },
 };
 
 const DEFAULT_META = { photo: null, subtitle: 'Cultural food traditions', grad: 'h-grad-default' };
 
-/* ---- landing page --------------------------------- */
 router.get('/seasonal', async (req, res) => {
   try {
     const tags = await businessData.getAllHolidayTags();
@@ -41,7 +39,6 @@ router.get('/seasonal', async (req, res) => {
   }
 });
 
-/* ---- server-rendered results ---------------------- */
 router.get('/seasonal/:holidayTag', async (req, res) => {
   try {
     const tag = String(req.params.holidayTag || '').trim();
@@ -63,7 +60,6 @@ router.get('/seasonal/:holidayTag', async (req, res) => {
   }
 });
 
-/* ---- JSON feed ------------------------------------ */
 router.get('/api/seasonal/:holidayTag', async (req, res) => {
   try {
     const tag = String(req.params.holidayTag || '').trim();

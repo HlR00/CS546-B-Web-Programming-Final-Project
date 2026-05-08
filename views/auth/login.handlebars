@@ -11,7 +11,7 @@
     </div>
     {{/if}}
 
-    <form class="auth-form" method="POST" action="/login" novalidate>
+    <form class="auth-form" id="login-form" method="POST" action="/login" novalidate>
       <div class="form-field">
         <label class="form-label" for="login-email">Email Address</label>
         <input
@@ -27,19 +27,33 @@
 
       <div class="form-field">
         <label class="form-label" for="login-password">Password</label>
-        <input
-          class="form-input"
-          type="password"
-          id="login-password"
-          name="password"
-          placeholder="Enter your password"
-          autocomplete="current-password"
-          required
-        >
+        <div class="password-wrapper" style="position:relative;width:100%;">
+          <input
+            class="form-input"
+            type="password"
+            id="login-password"
+            name="password"
+            placeholder="Enter your password"
+            autocomplete="current-password"
+            style="padding-right:40px;width:100%;box-sizing:border-box;"
+            required
+          >
+          <button
+            type="button"
+            id="togglePassword"
+            style="position:absolute;right:10px;top:50%;transform:translateY(-50%);background:none;border:none;cursor:pointer;padding:0;font-size:1.2rem;"
+            aria-label="Toggle password visibility"
+            title="Show/Hide Password"
+          >&#128065;&#65039;</button>
+        </div>
       </div>
 
       <button type="submit" class="auth-submit">Sign In</button>
     </form>
+
+    <p class="auth-switch" style="margin-top:8px;">
+      <a href="/forgot-password">Forgot your password?</a>
+    </p>
 
     <p class="auth-switch">
       No account yet? <a href="/register">Create one for free</a>
@@ -47,3 +61,4 @@
 
   </div>
 </section>
+<script src="/public/js/auth.js" defer></script>

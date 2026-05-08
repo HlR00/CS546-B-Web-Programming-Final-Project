@@ -6,6 +6,7 @@
   <p>Discover minority-owned businesses carrying traditional foods for upcoming cultural celebrations across all five boroughs.</p>
 </div>
 
+<script src="/public/js/seasonal.js" defer></script>
 {{#if holidayTags.length}}
   <div class="section-label"><h2>Choose a Holiday</h2></div>
 
@@ -18,10 +19,8 @@
             alt="{{this.name}}"
             class="holiday-card-img"
             loading="lazy"
-            onerror="this.style.display='none'; this.parentElement.classList.add('{{this.grad}}')"
+            data-grad="{{this.grad}}"
           >
-        {{else}}
-          {{!-- CSS gradient fallback when no photo --}}
         {{/if}}
         <div class="holiday-card-overlay {{#unless this.photo}}{{this.grad}}{{/unless}}">
           <p class="holiday-card-sub">{{this.subtitle}}</p>

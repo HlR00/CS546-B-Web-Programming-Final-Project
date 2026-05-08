@@ -1,11 +1,8 @@
-import 'dotenv/config';
 import express   from 'express';
 import exphbs    from 'express-handlebars';
 import session   from 'express-session';
 import { fileURLToPath } from 'url';
 import path      from 'path';
-
-import { connect as mongooseConnect } from './db.js';
 
 import mapRoutes        from './routes/map.js';
 import seasonalRoutes   from './routes/seasonal.js';
@@ -14,105 +11,89 @@ import authRoutes       from './routes/auth.js';
 import profileRoutes    from './routes/profile.js';
 import adminRoutes      from './routes/admin.js';
 
-import apiAuth          from './routes/api/auth.js';
-import apiUsers         from './routes/api/users.js';
-import apiBusinesses    from './routes/api/businesses.js';
-import apiProducts      from './routes/api/products.js';
-import apiReviews       from './routes/api/reviews.js';
-import apiQuestions     from './routes/api/questions.js';
-
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
+const app = express();
 
-export function buildApp() {
-  const app = express();
+app.engine('handlebars', exphbs.engine({
+  defaultLayout: 'main',
+  helpers: {
+    eq:    (a, b) => a === b,
+    times: (n)    => Array.from({ length: Math.max(0, parseInt(n) || 0) }),
+    gt:    (a, b) => a > b,
+    json:  (v)    => JSON.stringify(v),
+    formatDate: (iso) => new Date(iso).toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' }),
+  }
+}));
+app.set('view engine', 'handlebars');
+app.set('views', path.join(__dirname, 'views'));
 
-  app.engine('handlebars', exphbs.engine({
-    defaultLayout: 'main',
-    helpers: {
-      eq: (a, b) => a === b,
-    }
-  }));
-  app.set('view engine', 'handlebars');
-  app.set('views', path.join(__dirname, 'views'));
+app.use('/public', express.static(path.join(__dirname, 'public')));
+app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
+app.use(session({
+  secret: process.env.SESSION_SECRET || 'nyc-roots-&-flavors-secret-2025',
+  resave: false,
+  saveUninitialized: false,
+  cookie: { httpOnly: true, sameSite: 'lax' },
+}));
 
-  app.use('/public', express.static(path.join(__dirname, 'public')));
-  app.use(express.json());
-  app.use(express.urlencoded({ extended: true }));
-  app.use(session({
-    secret: process.env.SESSION_SECRET || 'secret',
-    resave: false,
-    saveUninitialized: false,
-  }));
+/* ---- Security headers (XSS defence) ---- */
+app.use((req, res, next) => {
+  res.setHeader('X-Content-Type-Options', 'nosniff');
+  res.setHeader('X-Frame-Options', 'DENY');
+  res.setHeader('X-XSS-Protection', '1; mode=block');
+  res.setHeader(
+    'Content-Security-Policy',
+    [
+      "default-src 'self'",
+      "script-src 'self' https://unpkg.com",
+      "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://unpkg.com",
+      "font-src 'self' https://fonts.gstatic.com",
+      "img-src 'self' data: https://*.tile.openstreetmap.org https://unpkg.com https://images.unsplash.com",
+      "connect-src 'self'",
+      "frame-ancestors 'none'",
+    ].join('; ')
+  );
+  next();
+});
 
-  /* ---- Inject session user & isAdmin into every template ---- */
-  app.use((req, res, next) => {
-    res.locals.user    = req.session.user || null;
-    res.locals.isAdmin = req.session.user?.role === 'admin';
-    next();
+/* ---- Inject session user & isAdmin into every template ---- */
+app.use((req, res, next) => {
+  res.locals.user    = req.session.user || null;
+  res.locals.isAdmin = req.session.user?.role === 'admin';
+  next();
+});
+
+app.use('/', mapRoutes);
+app.use('/', seasonalRoutes);
+app.use('/', businessRoutes);
+app.use('/', authRoutes);
+app.use('/', profileRoutes);
+app.use('/', adminRoutes);
+
+app.get('/', (req, res) => {
+  if (req.session.user) return res.redirect('/dashboard');
+  return res.redirect('/login');
+});
+
+/* ---- 404 handler ---- */
+app.use((req, res) => {
+  res.status(404).render('error', {
+    title: 'Page Not Found',
+    error: 'The page you are looking for does not exist or has been moved.',
+    statusCode: '404',
   });
+});
 
-  /* ---- REST API (JWT-authed, JSON) ---- */
-  app.use('/api/v1/auth', apiAuth);
-  app.use('/api/v1/users', apiUsers);
-  app.use('/api/v1/businesses', apiBusinesses);
-  app.use('/api/v1/businesses/:businessId/products', apiProducts);
-  app.use('/api/v1/businesses/:businessId/reviews', apiReviews);
-  app.use('/api/v1/businesses/:businessId/questions', apiQuestions);
-
-  /* ---- HTML routes (session-authed) ---- */
-  app.use('/', mapRoutes);
-  app.use('/', seasonalRoutes);
-  app.use('/', businessRoutes);
-  app.use('/', authRoutes);
-  app.use('/', profileRoutes);
-  app.use('/', adminRoutes);
-
-  app.get('/', (req, res) => {
-    if (req.session.user) return res.redirect('/dashboard');
-    return res.redirect('/login');
+/* ---- Global error handler ---- */
+app.use((err, req, res, next) => {
+  console.error(err);
+  const status = err.status || 500;
+  res.status(status).render('error', {
+    title:      status === 403 ? 'Access Denied'    : 'Something Went Wrong',
+    error:      status === 403 ? 'You don\'t have permission to view this page.' : 'An unexpected error occurred. Please try again.',
+    statusCode: String(status),
   });
+});
 
-  /* ---- 404 handler ---- */
-  app.use((req, res) => {
-    if (req.path.startsWith('/api/')) {
-      return res.status(404).json({ error: 'not found', path: req.path });
-    }
-    res.status(404).render('error', {
-      title: 'Page Not Found',
-      error: 'The page you are looking for does not exist or has been moved.',
-      statusCode: '404',
-    });
-  });
-
-  /* ---- Global error handler ---- */
-  app.use((err, req, res, next) => {
-    console.error(err);
-    const status = err.status || 500;
-    if (req.path.startsWith('/api/')) {
-      return res.status(status).json({ error: err.message || 'server error' });
-    }
-    res.status(status).render('error', {
-      title:      status === 403 ? 'Access Denied'    : 'Something Went Wrong',
-      error:      status === 403 ? 'You don\'t have permission to view this page.' : 'An unexpected error occurred. Please try again.',
-      statusCode: String(status),
-    });
-  });
-
-  return app;
-}
-
-const PORT = process.env.PORT || 3000;
-const isDirectRun = import.meta.url === `file://${process.argv[1]}`;
-
-if (isDirectRun) {
-  (async () => {
-    try {
-      await mongooseConnect();
-      const app = buildApp();
-      app.listen(PORT, () => console.log(`http://localhost:${PORT}`));
-    } catch (err) {
-      console.error('failed to start:', err);
-      process.exit(1);
-    }
-  })();
-}
+app.listen(3000, () => console.log('http://localhost:3000'));

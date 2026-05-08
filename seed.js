@@ -1,8 +1,10 @@
 import { dbConnection, closeConnection } from './config/mongoConnection.js';
+import { registerUser } from './data/users.js';
 
 const seed = async () => {
   const db = await dbConnection();
   const col = db.collection('businesses');
+  const userCol = db.collection('users');
 
   await col.deleteMany({});
 
@@ -58,6 +60,11 @@ const seed = async () => {
   await col.createIndex({ 'products.holidayTag': 1 });
 
   console.log('Seeded 5 businesses and created indexes.');
+
+  await userCol.deleteMany({});
+  await registerUser('Admin', 'NYC', 'admin@nyc.com', 'AdminPassword123!');
+  console.log('Created admin user: admin@nyc.com');
+
   await closeConnection();
 };
 
